@@ -1,0 +1,452 @@
+.auth-shell {
+    width: min(100%, 540px);
+    margin: 0 auto;
+    padding: 3rem 1rem 4rem;
+}
+
+.auth-shell--wide {
+    width: min(100%, 640px);
+}
+
+.profile-page {
+    width: min(100%, 960px);
+    margin: 2.5rem auto 0;
+}
+
+.profile-card {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(255, 174, 0, 0.12);
+    border-radius: 26px;
+    box-shadow: var(--petly-shadow-md);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.profile-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: center;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 174, 0, 0.12);
+}
+
+.profile-avatar-wrap {
+    width: 136px;
+    height: 136px;
+    padding: 0.35rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 157, 0, 0.2), rgba(255, 216, 77, 0.45));
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.92);
+}
+
+.profile-intro {
+    min-width: 0;
+}
+
+.profile-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(255, 216, 77, 0.18);
+    color: #8c6406;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.profile-title {
+    margin: 0.75rem 0 0.4rem;
+    font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+    font-size: clamp(2rem, 4vw, 2.7rem);
+    line-height: 1.05;
+}
+
+.profile-email {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.profile-subtitle {
+    margin: 0.65rem 0 0;
+    max-width: 34rem;
+    color: var(--petly-text-muted);
+    line-height: 1.65;
+}
+
+.profile-form {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.profile-upload {
+    display: grid;
+    gap: 0.55rem;
+}
+
+.profile-label {
+    font-weight: 800;
+    color: var(--petly-text);
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.profile-file-input {
+    padding-block: 0.7rem;
+}
+
+.profile-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.35rem;
+}
+
+.profile-save-button {
+    width: min(100%, 280px);
+}
+
+.auth-logo-row {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.auth-card {
+    border: 1px solid rgba(255, 174, 0, 0.12);
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.auth-title {
+    font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+    font-size: clamp(1.9rem, 4vw, 2.25rem);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 0.85rem;
+}
+
+.auth-description,
+.auth-helper {
+    text-align: center;
+    color: var(--petly-text-muted);
+    line-height: 1.6;
+}
+
+.auth-description {
+    margin-bottom: 1.5rem;
+}
+
+.auth-helper {
+    margin: 0.5rem auto 1.25rem;
+    max-width: 34rem;
+}
+
+.auth-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.auth-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.auth-form .form-control,
+.auth-form .form-select,
+.search-input {
+    min-height: 50px;
+    border: 1px solid rgba(255, 174, 0, 0.14);
+    border-radius: var(--petly-radius);
+    padding: 0.85rem 1rem;
+    box-shadow: none;
+    background: #fffdfa;
+}
+
+.auth-form .form-control:focus,
+.auth-form .form-select:focus,
+.search-input:focus {
+    border-color: var(--petly-accent-deep);
+    box-shadow: 0 0 0 4px rgba(255, 159, 10, 0.16);
+}
+
+.field-error {
+    margin-top: 0.35rem;
+    color: #c0392b;
+    font-size: 0.92rem;
+    display: block;
+}
+
+.validation-summary-errors,
+.auth-summary {
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    background: #fff3f1;
+    border: 1px solid #f2c7c1;
+    color: #b83c2f;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.auth-inline-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.auth-form-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 48px;
+}
+
+.auth-form-check .form-check-input {
+    margin-top: 0;
+    flex-shrink: 0;
+}
+
+.auth-link-button {
+    color: #8f5d00;
+    font-weight: 600;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.auth-link-button:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+.btn-auth-primary {
+    width: 100%;
+    background: var(--petly-accent);
+    color: #000;
+    border: 1px solid rgba(255, 174, 0, 0.2);
+    font-weight: 800;
+    padding: 0.85rem 1.2rem;
+}
+
+.btn-auth-primary:hover {
+    background: #ffb347;
+    box-shadow: 0 10px 20px rgba(150, 102, 21, 0.12);
+    color: #000;
+}
+
+.btn-auth-secondary {
+    background: #ffffff;
+    color: var(--petly-text);
+    border: 1px solid rgba(255, 174, 0, 0.14);
+    padding: 0.8rem 1.15rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.btn-auth-secondary:hover {
+    background: #ffb347;
+    color: #000;
+}
+
+.btn-auth-secondary--soft {
+    border-color: rgba(31, 31, 31, 0.08);
+    color: var(--petly-text-muted);
+}
+
+.adoption-profile-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    margin-top: 0.55rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255, 216, 77, 0.16);
+    color: #8f5d00;
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 800;
+    transition: background-color var(--petly-transition), transform var(--petly-transition), color var(--petly-transition);
+}
+
+.adoption-profile-link:hover {
+    background: #ffb347;
+    color: #000;
+    transform: translateY(-1px);
+}
+
+.adoption-action-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.adoption-action-group form {
+    margin: 0;
+}
+
+.adoption-request-layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.adoption-pet-card,
+.adoption-request-card,
+.adoption-user-card {
+    padding: 1.5rem;
+}
+
+.adoption-pet-card__image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: calc(var(--petly-radius) + 2px);
+    margin-bottom: 1.1rem;
+}
+
+.adoption-pet-card__title {
+    margin: 0 0 0.45rem;
+    font-size: 1.7rem;
+    font-weight: 800;
+}
+
+.adoption-pet-card__meta {
+    margin: 0 0 0.65rem;
+    color: #9b6500;
+    font-weight: 700;
+}
+
+.adoption-pet-card__text {
+    margin: 0;
+    color: var(--petly-text-muted);
+}
+
+.auth-field-grid--double {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.auth-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.adoption-request-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.adoption-user-card__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.adoption-user-card__group {
+    padding: 1.15rem;
+    border-radius: 18px;
+    background: #fff9eb;
+    border: 1px solid rgba(255, 174, 0, 0.12);
+}
+
+.adoption-user-card__group p {
+    margin-bottom: 0.55rem;
+}
+
+.adoption-user-card__group p:last-child {
+    margin-bottom: 0;
+}
+
+.adoption-user-card__heading {
+    margin: 0 0 0.85rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.btn-adoption-action {
+    min-width: 132px;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(255, 174, 0, 0.14);
+    border-radius: 18px;
+    font-weight: 800;
+    box-shadow: 0 8px 18px rgba(150, 102, 21, 0.08);
+}
+
+.btn-adoption-action--approve {
+    background: #ffe486;
+    color: #4b3000;
+}
+
+.btn-adoption-action--approve:hover {
+    background: #ffb347;
+    color: #000;
+}
+
+.btn-adoption-action--reject {
+    background: #fff7de;
+    color: #6a4d10;
+}
+
+.btn-adoption-action--reject:hover {
+    background: #ffb347;
+    color: #000;
+}
+
+.auth-switch,
+.auth-back-row,
+.auth-secondary-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.85rem;
+    margin-top: 1.4rem;
+    flex-wrap: wrap;
+}
+
+.auth-password-field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+}
+
+.auth-code-input {
+    letter-spacing: 0.18em;
+    font-size: 1.05rem;
+}
+
+.auth-step-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    border-radius: 999px;
+    background: rgba(255, 216, 77, 0.18);
+    padding: 0.45rem 0.85rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #8f5d00;
+}
+

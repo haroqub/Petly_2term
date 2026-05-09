@@ -1,0 +1,30 @@
+[
+  {
+    "outputFileName": "wwwroot/dist/app.min.css",
+    "inputFiles": [
+      "wwwroot/css/base.css",
+      "wwwroot/css/layout.css",
+      "wwwroot/css/pages/account-adoption.css",
+      "wwwroot/css/components.css",
+      "wwwroot/css/pages/pets.css",
+      "wwwroot/css/pages/about.css",
+      "wwwroot/css/pages/needs.css",
+      "wwwroot/css/responsive.css"
+    ],
+    "minify": {
+      "enabled": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/dist/app.min.js",
+    "inputFiles": [
+      "wwwroot/js/modules/password-toggle.js",
+      "wwwroot/js/modules/flash-message.js",
+      "wwwroot/js/modules/loader.js",
+      "wwwroot/js/modules/forms.js"
+    ],
+    "minify": {
+      "enabled": true
+    }
+  }
+]

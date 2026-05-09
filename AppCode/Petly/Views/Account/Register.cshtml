@@ -1,0 +1,60 @@
+@model Petly.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Реєстрація";
+}
+
+<div class="auth-shell auth-shell--wide">
+    <div class="auth-logo-row">
+        <span class="logo-text">Petly</span>
+    </div>
+
+    <div class="auth-card">
+        <h2 class="auth-title">Приєднуйся до нас!</h2>
+        <p class="auth-description">Створи профіль, щоб зберігати улюбленців, подавати заявки на адопцію та швидко допомагати притулкам.</p>
+        <form asp-action="Register" method="post" class="auth-form">
+            <div asp-validation-summary="ModelOnly" class="auth-summary"></div>
+            <div class="auth-grid">
+                <div class="text-start">
+                    <label asp-for="Name" class="form-label fw-semibold">Ім'я</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="field-error"></span>
+                </div>
+                <div class="text-start">
+                    <label asp-for="Surname" class="form-label fw-semibold">Прізвище</label>
+                    <input asp-for="Surname" class="form-control" />
+                    <span asp-validation-for="Surname" class="field-error"></span>
+                </div>
+            </div>
+            <div class="text-start">
+                <label asp-for="Email" class="form-label fw-semibold">Email</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="field-error"></span>
+            </div>
+            <div class="auth-grid">
+                <div class="text-start">
+                    <label asp-for="Password" class="form-label fw-semibold">Пароль</label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="field-error"></span>
+                </div>
+                <div class="text-start">
+                    <label asp-for="ConfirmPassword" class="form-label fw-semibold">Підтвердження пароля</label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="field-error"></span>
+                </div>
+            </div>
+            <div class="form-check auth-form-check text-start">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label asp-for="RememberMe" class="form-check-label">Запам'ятати мене</label>
+            </div>
+            <button type="submit" class="btn-auth-primary">Зареєструватися</button>
+        </form>
+        <div class="auth-switch">
+            <span>Вже є аккаунт?</span>
+            <a class="btn-auth-secondary" asp-action="Login">Увійти</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

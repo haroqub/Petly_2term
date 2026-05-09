@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Petly/Petly.csproj" />
+  <Project Path="Petly.Business/Petly.Business.csproj" />
+  <Project Path="Petly.DataAccess/Petly.DataAccess.csproj" />
+  <Project Path="Petly.Models/Petly.Models.csproj" />
+  <Project Path="Petly.Tests/Petly.Tests.csproj" />
+</Solution>

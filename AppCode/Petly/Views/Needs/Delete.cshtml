@@ -1,0 +1,51 @@
+@model Petly.Models.ShelterNeed
+
+@{
+    ViewData["Title"] = "Видалити потребу";
+    var shelterName = Model.Shelter?.ShelterName ?? $"Притулок #{Model.ShelterId}";
+}
+
+<section class="need-delete-shell">
+    <a asp-action="Index" class="need-delete-back">← Назад до потреб</a>
+
+    <div class="need-delete-card">
+        <div class="need-delete-card__hero">
+            <div class="need-delete-card__copy">
+                <span class="section-kicker need-delete-card__kicker">Delete Need</span>
+                <h1 class="need-delete-card__title">Видалити цю потребу?</h1>
+                <p class="need-delete-card__text">
+                    Після видалення запис зникне зі списку потреб цього притулку. Перевір, чи запит уже неактуальний,
+                    щоб не втратити важливу інформацію для донорів і волонтерів.
+                </p>
+            </div>
+
+            <div class="need-delete-card__warning">
+                <strong>Увага</strong>
+                <span>Дію не можна скасувати після підтвердження.</span>
+            </div>
+        </div>
+
+        <div class="need-delete-summary">
+            <article class="need-delete-summary__card">
+                <span class="need-card__label">Притулок</span>
+                <h2 class="need-delete-summary__title">@shelterName</h2>
+            </article>
+
+            <article class="need-delete-summary__card">
+                <span class="need-card__label">Що потрібно</span>
+                <p class="need-delete-summary__text">@Model.Description</p>
+            </article>
+
+            <article class="need-delete-summary__card">
+                <span class="need-card__label">Як допомогти</span>
+                <p class="need-delete-summary__text">@Model.PaymentDetails</p>
+            </article>
+        </div>
+
+        <form asp-action="Delete" method="post" class="need-form__actions need-delete-card__actions">
+            <input type="hidden" name="id" value="@Model.NeedId" />
+            <button type="submit" class="btn-need-danger">Так, видалити</button>
+            <a asp-action="Index" class="btn-need-secondary">Скасувати</a>
+        </form>
+    </div>
+</section>

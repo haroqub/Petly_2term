@@ -1,0 +1,44 @@
+@model Petly.Models.ShelterNeedFormViewModel
+
+@{
+    ViewData["Title"] = "Редагувати потребу";
+}
+
+<section class="need-form-shell">
+    <div class="need-form-panel">
+        <p class="need-form-panel__eyebrow">Update Need</p>
+        <h1 class="need-form-panel__title">Онови текст потреби</h1>
+        <p class="need-form-panel__text">
+            Підтримуй список актуальним: змінюй формулювання, спосіб допомоги або уточнюй деталі.
+        </p>
+    </div>
+
+    <div class="need-form-card">
+        <form asp-action="Edit" method="post" class="need-form">
+            <input type="hidden" asp-for="NeedId" />
+            <input type="hidden" asp-for="ShelterId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control need-textarea" rows="6"></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="PaymentDetails" class="form-label"></label>
+                <input asp-for="PaymentDetails" class="form-control need-input" />
+                <span asp-validation-for="PaymentDetails" class="text-danger small"></span>
+            </div>
+
+            <div class="need-form__actions">
+                <button type="submit" class="btn-need-primary">Оновити</button>
+                <a asp-action="Index" class="btn-need-secondary">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

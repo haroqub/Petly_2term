@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "documentationRules": {
+      "companyName": "Petly",
+      "documentInterfaces": true,
+      "documentPrivateElements": false
+    },
+    "orderingRules": {
+      "usingDirectivesPlacement": "outsideNamespace",
+      "systemUsingDirectivesFirst": true
+    }
+  }
+}

@@ -1,0 +1,887 @@
+@model Petly.Models.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Аналітика";
+    var chartPoints = Model.ApplicationsByDay;
+    var approvedChartPoints = Model.ApprovedApplicationsByDay;
+    var chartHasData = chartPoints.Any(x => x.Value > 0) || approvedChartPoints.Any(x => x.Value > 0);
+    var chartMax = Math.Max(
+        Math.Max(chartPoints.Any() ? chartPoints.Max(x => x.Value) : 0, 1),
+        approvedChartPoints.Any() ? approvedChartPoints.Max(x => x.Value) : 0);
+    var shelterPetsMax = Math.Max(Model.PetsByShelter.Any() ? Model.PetsByShelter.Max(x => x.Value) : 0, 1);
+    var shelterPendingMax = Math.Max(Model.PendingByShelter.Any() ? Model.PendingByShelter.Max(x => x.Value) : 0, 1);
+    var chartLabelStep = chartPoints.Count > 20 ? 5 : chartPoints.Count > 7 ? 3 : 1;
+
+    string BuildPolylinePoints(List<Petly.Models.DashboardSeriesPointViewModel> points)
+    {
+        if (points.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        return string.Join(" ", points.Select((point, index) =>
+        {
+            var x = points.Count == 1 ? 50 : Math.Round((double)index / (points.Count - 1) * 100, 2);
+            var y = 36 - Math.Round((double)point.Value / chartMax * 26, 2);
+            return $"{x.ToString(System.Globalization.CultureInfo.InvariantCulture)},{y.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+        }));
+    }
+
+    string GetStatusBadgeClass(string status) => status switch
+    {
+        "Активний" => "analytics-badge analytics-badge--success",
+        "Прилаштований" => "analytics-badge analytics-badge--success",
+        "Відхилено" => "analytics-badge analytics-badge--danger",
+        "Доступний" or "Available" => "analytics-badge analytics-badge--warning",
+        _ => "analytics-badge"
+    };
+
+    string FormatRelativeDate(DateTime value)
+    {
+        var days = (DateTime.Today - value.Date).Days;
+        return days switch
+        {
+            <= 0 => "Сьогодні",
+            1 => "Вчора",
+            < 5 => $"{days} дні тому",
+            _ => $"{days} дн. тому"
+        };
+    }
+}
+
+<style>
+    .analytics-page {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 24px 20px 48px;
+    }
+
+    .analytics-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 20px;
+        padding: 28px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, #fff3cf 0%, #fff8ec 55%, #f5e0ac 100%);
+        box-shadow: 0 18px 50px rgba(65, 54, 39, 0.08);
+        margin-bottom: 24px;
+    }
+
+    .analytics-hero__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        margin: 0 0 14px;
+        padding: 12px 18px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.82rem;
+        color: #9a6d06;
+        font-weight: 700;
+        background: linear-gradient(180deg, #fff2c6 0%, #ffefbc 100%);
+    }
+
+    .analytics-hero h1 {
+        margin: 0 0 10px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        color: #2f2418;
+    }
+
+    .analytics-hero p {
+        margin: 0;
+        max-width: 720px;
+        color: #584831;
+        font-size: 1rem;
+    }
+
+    .analytics-filter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .analytics-filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .analytics-filter-select {
+        min-width: 220px;
+        padding: 10px 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(145, 111, 43, 0.14);
+        background: rgba(255, 255, 255, 0.9);
+        color: #59482f;
+    }
+
+    .analytics-filter__link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 74px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 700;
+        color: #725933;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(145, 111, 43, 0.14);
+    }
+
+    .analytics-filter__link.is-active {
+        background: #d88a34;
+        color: #fffdf8;
+        border-color: #d88a34;
+    }
+
+    .analytics-grid {
+        display: grid;
+        gap: 18px;
+    }
+
+    .analytics-grid--metrics {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        margin-bottom: 18px;
+    }
+
+    .analytics-card {
+        background: #fff;
+        border-radius: 24px;
+        padding: 22px;
+        box-shadow: 0 14px 40px rgba(38, 39, 33, 0.08);
+    }
+
+    .analytics-card--link {
+        display: block;
+        text-decoration: none;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .analytics-card--link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 42px rgba(38, 39, 33, 0.11);
+    }
+
+    .analytics-card h2,
+    .analytics-card h3 {
+        margin: 0 0 12px;
+        color: #2f2418;
+    }
+
+    .analytics-kpi__label {
+        margin: 0 0 10px;
+        color: #7a6a58;
+        font-size: 0.94rem;
+    }
+
+    .analytics-kpi__value {
+        margin: 0 0 8px;
+        font-size: 2.1rem;
+        line-height: 1;
+        color: #1f1a15;
+        font-weight: 800;
+    }
+
+    .analytics-kpi__meta {
+        margin: 0;
+        color: #584831;
+        font-size: 0.92rem;
+    }
+
+    .analytics-grid--panels {
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr);
+        margin-bottom: 18px;
+    }
+
+    .analytics-chart-card {
+        min-height: 340px;
+    }
+
+    .analytics-chart-shell {
+        display: grid;
+        gap: 16px;
+        min-height: 250px;
+    }
+
+    .analytics-chart-svg {
+        width: 100%;
+        height: 220px;
+        overflow: visible;
+    }
+
+    .analytics-chart-grid line {
+        stroke: #f0e2c4;
+        stroke-width: 0.75;
+    }
+
+    .analytics-chart-line {
+        fill: none;
+        stroke: #dd7d3d;
+        stroke-width: 0.35;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .analytics-chart-line--approved {
+        stroke: #6da37f;
+        stroke-width: 0.35;
+        stroke-dasharray: 1.6 1.1;
+    }
+
+    .analytics-chart-dot {
+        fill: #fff7ef;
+        stroke: #dd7d3d;
+        stroke-width: 0.9;
+    }
+
+    .analytics-chart-dot--approved {
+        fill: #f0f8f3;
+        stroke: #6da37f;
+    }
+
+    .analytics-chart-hit {
+        fill: transparent;
+        pointer-events: all;
+    }
+
+    .analytics-chart-axis {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+
+    .analytics-chart-axis span {
+        flex: 1;
+        text-align: center;
+        font-size: 0.82rem;
+        color: #70593e;
+    }
+
+    .analytics-chart-summary {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .analytics-chart-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #fff8ec;
+        color: #5f4d35;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .analytics-chart-legend {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+        color: #5f4d35;
+        font-size: 0.92rem;
+    }
+
+    .analytics-chart-legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .analytics-chart-legend i {
+        width: 24px;
+        height: 2px;
+        display: inline-block;
+        border-radius: 999px;
+        background: #dd7d3d;
+    }
+
+    .analytics-chart-legend i.approved {
+        background: #6da37f;
+        border-top: 2px dashed #6da37f;
+        height: 0;
+    }
+
+    .analytics-empty-state {
+        min-height: 220px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-align: center;
+        border: 1px dashed #ecd5a8;
+        border-radius: 20px;
+        background: linear-gradient(180deg, #fffaf1 0%, #fffefb 100%);
+        padding: 24px;
+    }
+
+    .analytics-empty-state h3 {
+        margin: 0;
+        color: #3d342b;
+        font-size: 1.15rem;
+    }
+
+    .analytics-empty-state p {
+        margin: 0;
+        max-width: 420px;
+        color: #6a5943;
+    }
+
+    .analytics-breakdown {
+        display: grid;
+        gap: 14px;
+    }
+
+    .analytics-breakdown__row {
+        display: grid;
+        gap: 8px;
+        padding-top: 2px;
+    }
+
+    .analytics-breakdown__meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        color: #584c41;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .analytics-breakdown__track {
+        height: 10px;
+        background: #efe6dc;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .analytics-breakdown__fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #d88a34 0%, #efbf67 100%);
+    }
+
+    .analytics-breakdown__fill--approved {
+        background: linear-gradient(90deg, #6da37f 0%, #a9d0b4 100%);
+    }
+
+    .analytics-breakdown__fill--pending {
+        background: linear-gradient(90deg, #daa14d 0%, #f3cf86 100%);
+    }
+
+    .analytics-breakdown__fill--warm {
+        background: linear-gradient(90deg, #cc5d43 0%, #ef9467 100%);
+    }
+
+    .analytics-grid--tables {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .analytics-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+    .analytics-table th,
+    .analytics-table td {
+        padding: 12px 0;
+        border-bottom: 1px solid #f1e8de;
+        text-align: left;
+        font-size: 0.95rem;
+    }
+
+    .analytics-table th {
+        color: #7a6a58;
+        font-weight: 700;
+    }
+
+    .analytics-table td {
+        color: #3d342b;
+        vertical-align: top;
+    }
+
+    .analytics-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        background: #f5eee7;
+        color: #6a5a48;
+    }
+
+    .analytics-badge--success {
+        background: #e5f4eb;
+        color: #25684d;
+    }
+
+    .analytics-badge--warning {
+        background: #fff1e7;
+        color: #a4582c;
+    }
+
+    .analytics-badge--danger {
+        background: #fae5e1;
+        color: #aa4e3d;
+    }
+
+    .analytics-tools {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 12px;
+        align-items: center;
+    }
+
+    .analytics-search {
+        width: min(100%, 270px);
+        padding: 10px 14px;
+        border-radius: 14px;
+        border: 1px solid #ead9b4;
+        background: #fffdf8;
+        color: #3d342b;
+    }
+
+    .analytics-link-inline {
+        color: #c4682e;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .analytics-link-inline:hover {
+        color: #a34f1d;
+    }
+
+    .analytics-user-link {
+        color: #3d342b;
+        text-decoration: none;
+    }
+
+    .analytics-user-link:hover strong,
+    .analytics-user-link:hover span {
+        color: #b36027;
+    }
+
+    .analytics-pet {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .analytics-pet__avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        object-fit: cover;
+        background: #fff5e8;
+        border: 1px solid #f2e2c2;
+        flex-shrink: 0;
+    }
+
+    .analytics-empty {
+        margin: 0;
+        color: #7a6a58;
+    }
+
+    .analytics-empty--centered {
+        min-height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    @@media (max-width: 992px) {
+        .analytics-grid--panels,
+        .analytics-grid--tables {
+            grid-template-columns: 1fr;
+        }
+
+        .analytics-hero {
+            align-items: start;
+            flex-direction: column;
+        }
+
+        .analytics-filter {
+            justify-content: start;
+        }
+
+        .analytics-tools {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+
+<div class="analytics-page">
+    <section class="analytics-hero">
+        <div>
+            <p class="analytics-hero__eyebrow">Admin Dashboard</p>
+            <h1>Аналітика роботи Petly</h1>
+            <p>
+                Зведена картина по користувачах, притулках, тваринах та заявках на адопцію.
+            Дані нижче показують як загальний стан системи, так і активність за останні @Model.SelectedPeriodDays @(Model.SelectedPeriodDays == 1 ? "день" : "днів").
+            </p>
+        </div>
+
+        <form method="get" asp-controller="Admin" asp-action="Analytics" class="analytics-filter-form" aria-label="Фільтри аналітики">
+            <select name="shelterId" class="analytics-filter-select" onchange="this.form.submit()">
+                <option value="">Усі притулки</option>
+                @foreach (var shelter in Model.ShelterOptions)
+                {
+                    if (Model.SelectedShelterId == shelter.Id)
+                    {
+                        <option value="@shelter.Id" selected="selected">@shelter.Label</option>
+                    }
+                    else
+                    {
+                        <option value="@shelter.Id">@shelter.Label</option>
+                    }
+                }
+            </select>
+            <div class="analytics-filter" aria-label="Фільтр періоду">
+                @foreach (var period in new[] { 1, 7, 30 })
+                {
+                    <a class="analytics-filter__link @(Model.SelectedPeriodDays == period ? "is-active" : null)"
+                       asp-controller="Admin"
+                       asp-action="Analytics"
+                       asp-route-days="@period"
+                       asp-route-shelterId="@Model.SelectedShelterId">
+                        @(period == 1 ? "1 день" : $"{period} дн.")
+                    </a>
+                }
+            </div>
+        </form>
+    </section>
+
+    <section class="analytics-grid analytics-grid--metrics">
+        <a class="analytics-card analytics-card--link analytics-kpi" asp-controller="Account" asp-action="Users">
+            <p class="analytics-kpi__label">Користувачі</p>
+            <p class="analytics-kpi__value">@Model.TotalUsers</p>
+            <p class="analytics-kpi__meta">Нових за період: @Model.PeriodNewUsers</p>
+        </a>
+        <article class="analytics-card analytics-kpi">
+            <p class="analytics-kpi__label">Адміни притулків</p>
+            <p class="analytics-kpi__value">@Model.TotalShelterAdmins</p>
+            <p class="analytics-kpi__meta">Притулків у системі: @Model.TotalShelters</p>
+        </article>
+        <a class="analytics-card analytics-card--link analytics-kpi" asp-controller="Pets" asp-action="Index">
+            <p class="analytics-kpi__label">Тварини</p>
+            <p class="analytics-kpi__value">@Model.TotalPets</p>
+            <p class="analytics-kpi__meta">Додано за період: @Model.PeriodNewPets</p>
+        </a>
+        <a class="analytics-card analytics-card--link analytics-kpi" asp-controller="Pets" asp-action="Index">
+            <p class="analytics-kpi__label">Доступні до адопції</p>
+            <p class="analytics-kpi__value">@Model.AvailablePets</p>
+            <p class="analytics-kpi__meta">Прилаштовані: @Model.AdoptedPets</p>
+        </a>
+        <a class="analytics-card analytics-card--link analytics-kpi" asp-controller="Adoption" asp-action="Index">
+            <p class="analytics-kpi__label">Заявки</p>
+            <p class="analytics-kpi__value">@Model.TotalApplications</p>
+            <p class="analytics-kpi__meta">За період: @Model.PeriodApplications</p>
+        </a>
+        <article class="analytics-card analytics-kpi">
+            <p class="analytics-kpi__label">Успішність адопції</p>
+            <p class="analytics-kpi__value">@Model.AdoptionSuccessRate%</p>
+            <p class="analytics-kpi__meta">Схвалено: @Model.ApprovedApplications</p>
+        </article>
+        <a class="analytics-card analytics-card--link analytics-kpi" asp-controller="Needs" asp-action="Index">
+            <p class="analytics-kpi__label">Активні притулки за період</p>
+            <p class="analytics-kpi__value">@Model.ActiveSheltersInPeriod</p>
+            <p class="analytics-kpi__meta">Усього потреб: @Model.TotalNeeds</p>
+        </a>
+        <article class="analytics-card analytics-kpi">
+            <p class="analytics-kpi__label">Заявки в очікуванні</p>
+            <p class="analytics-kpi__value">@Model.PendingApplications</p>
+            <p class="analytics-kpi__meta">Відхилені: @Model.RejectedApplications</p>
+        </article>
+    </section>
+
+    <section class="analytics-grid analytics-grid--panels">
+        <article class="analytics-card analytics-chart-card">
+            <h2>Динаміка заявок за останні @Model.SelectedPeriodDays @(Model.SelectedPeriodDays == 1 ? "день" : "днів")</h2>
+            @if (!string.IsNullOrWhiteSpace(Model.SelectedShelterName))
+            {
+                <p class="analytics-empty">Фільтр: @Model.SelectedShelterName</p>
+            }
+            @if (!chartHasData)
+            {
+                <div class="analytics-empty-state">
+                    <h3>За цей період ще немає заявок</h3>
+                    <p>Коли з'являться нові подання на адопцію, тут буде графік.</p>
+                </div>
+            }
+            else
+            {
+                <div class="analytics-chart-shell">
+                    <div class="analytics-chart-summary">
+                        <span class="analytics-chart-chip">Подано: @Model.PeriodApplications</span>
+                        <span class="analytics-chart-chip">Схвалено: @approvedChartPoints.Sum(x => x.Value)</span>
+                        <span class="analytics-chart-chip">Пік за день: @chartMax</span>
+                        <span class="analytics-chart-chip">Період: @(Model.SelectedPeriodDays == 1 ? "1 день" : $"{Model.SelectedPeriodDays} дн.")</span>
+                    </div>
+                    <div class="analytics-chart-legend">
+                        <span><i></i> Подані заявки</span>
+                        <span><i class="approved"></i> Схвалені заявки</span>
+                    </div>
+
+                    <svg class="analytics-chart-svg" viewBox="0 0 100 40" role="img" aria-label="Лінійний графік заявок по днях" preserveAspectRatio="none">
+                        <g class="analytics-chart-grid">
+                            <line x1="0" y1="8" x2="100" y2="8"></line>
+                            <line x1="0" y1="18" x2="100" y2="18"></line>
+                            <line x1="0" y1="28" x2="100" y2="28"></line>
+                            <line x1="0" y1="38" x2="100" y2="38"></line>
+                        </g>
+                        <polyline class="analytics-chart-line analytics-chart-line--approved" points="@BuildPolylinePoints(approvedChartPoints)"></polyline>
+                        <polyline class="analytics-chart-line" points="@BuildPolylinePoints(chartPoints)"></polyline>
+                        @foreach (var point in chartPoints.Select((item, index) => new { item, index }))
+                        {
+                            var x = chartPoints.Count == 1 ? 50 : Math.Round((double)point.index / (chartPoints.Count - 1) * 100, 2);
+                            var y = 36 - Math.Round((double)point.item.Value / chartMax * 26, 2);
+                            var approvedValue = approvedChartPoints.ElementAtOrDefault(point.index)?.Value ?? 0;
+                            <circle class="analytics-chart-dot"
+                                    cx="@x.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                    cy="@y.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                    r="0.38">
+                            </circle>
+                            <circle class="analytics-chart-hit"
+                                    cx="@x.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                    cy="@y.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                    r="1.9">
+                                <title>@point.item.Label | Подано: @point.item.Value | Схвалено: @approvedValue</title>
+                            </circle>
+                        }
+                        @foreach (var point in approvedChartPoints.Select((item, index) => new { item, index }))
+                        {
+                            var x = approvedChartPoints.Count == 1 ? 50 : Math.Round((double)point.index / (approvedChartPoints.Count - 1) * 100, 2);
+                            var y = 36 - Math.Round((double)point.item.Value / chartMax * 26, 2);
+                            <circle class="analytics-chart-dot analytics-chart-dot--approved"
+                                    cx="@x.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                    cy="@y.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                    r="0.34">
+                            </circle>
+                        }
+                    </svg>
+
+                    <div class="analytics-chart-axis" aria-hidden="true">
+                        @foreach (var point in chartPoints.Select((item, index) => new { item, index }).Where(x => x.index == 0 || x.index == chartPoints.Count - 1 || x.index % chartLabelStep == 0))
+                        {
+                            <span>@point.item.Label</span>
+                        }
+                    </div>
+                </div>
+            }
+        </article>
+
+        <article class="analytics-card">
+            <h2>Статуси заявок за період</h2>
+            <div class="analytics-breakdown">
+                @foreach (var item in Model.ApplicationStatusBreakdown)
+                {
+                    var percent = Model.PeriodApplications == 0 ? 0 : (int)Math.Round((double)item.Value / Model.PeriodApplications * 100);
+                    <div class="analytics-breakdown__row">
+                        <div class="analytics-breakdown__meta">
+                            <span>@item.Label</span>
+                            <span>@item.Value (@item.Meta)</span>
+                        </div>
+                        <div class="analytics-breakdown__track">
+                            <div class="analytics-breakdown__fill @(item.Label.Contains("Схвал") ? "analytics-breakdown__fill--approved" : item.Label.Contains("Відхил") ? "analytics-breakdown__fill--warm" : item.Label.Contains("Очіку") ? "analytics-breakdown__fill--pending" : null)"
+                                 style="width: @percent%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </article>
+    </section>
+
+    <section class="analytics-grid analytics-grid--panels">
+        <article class="analytics-card">
+            <h2>Притулки за кількістю тварин</h2>
+            @if (Model.PetsByShelter.Count == 0)
+            {
+                <p class="analytics-empty">У системі ще немає прив'язаних даних по притулках.</p>
+            }
+            else
+            {
+                <div class="analytics-breakdown">
+                    @foreach (var item in Model.PetsByShelter)
+                    {
+                        var width = (int)Math.Round((double)item.Value / shelterPetsMax * 100);
+                        <div class="analytics-breakdown__row">
+                            <div class="analytics-breakdown__meta">
+                                <span>@item.Label</span>
+                                <span>@item.Value @item.Meta</span>
+                            </div>
+                            <div class="analytics-breakdown__track">
+                                <div class="analytics-breakdown__fill" style="width: @width%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </article>
+
+        <article class="analytics-card">
+            <h2>Де накопичились заявки в очікуванні</h2>
+            @if (Model.PendingByShelter.Count == 0)
+            {
+                <div class="analytics-empty analytics-empty--centered">Наразі немає притулків із заявками, що очікують розгляду.</div>
+            }
+            else
+            {
+                <div class="analytics-breakdown">
+                    @foreach (var item in Model.PendingByShelter)
+                    {
+                        var width = (int)Math.Round((double)item.Value / shelterPendingMax * 100);
+                        <div class="analytics-breakdown__row">
+                            <div class="analytics-breakdown__meta">
+                                <span>@item.Label</span>
+                                <span>@item.Value @item.Meta</span>
+                            </div>
+                            <div class="analytics-breakdown__track">
+                                <div class="analytics-breakdown__fill analytics-breakdown__fill--warm" style="width: @width%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </article>
+    </section>
+
+    <section class="analytics-grid analytics-grid--tables">
+        <article class="analytics-card">
+            <h3>Останні зареєстровані користувачі</h3>
+            <div class="analytics-tools">
+                <span class="analytics-empty">Швидкий доступ до перевірки або редагування акаунта.</span>
+                <input type="text" class="analytics-search" id="recentUsersSearch" placeholder="Пошук по імені або email">
+            </div>
+            @if (Model.RecentUsers.Count == 0)
+            {
+                <p class="analytics-empty">Ще немає зареєстрованих користувачів.</p>
+            }
+            else
+            {
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Користувач</th>
+                            <th>Роль</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentUsersTable">
+                        @foreach (var user in Model.RecentUsers)
+                        {
+                            <tr>
+                                <td>
+                                    <a class="analytics-user-link" asp-controller="Account" asp-action="Edit" asp-route-id="@user.AccountId">
+                                        <strong>@user.DisplayName</strong><br />
+                                        <span>@user.Email</span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="analytics-badge @(user.Status == "Активний" ? "analytics-badge--success" : "analytics-badge--warning")">
+                                        @user.Role
+                                    </span>
+                                </td>
+                                <td>@user.RegisteredAt.ToString("dd.MM.yyyy")<br /><span>@FormatRelativeDate(user.RegisteredAt)</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </article>
+
+        <article class="analytics-card">
+            <h3>Останні додані тварини</h3>
+            <div class="analytics-tools">
+                <span class="analytics-empty">Швидкий перегляд і пошук по останніх записах.</span>
+                <input type="text" class="analytics-search" id="recentPetsSearch" placeholder="Пошук по імені або притулку">
+            </div>
+            @if (Model.RecentPets.Count == 0)
+            {
+                <p class="analytics-empty">Тварин ще не додано.</p>
+            }
+            else
+            {
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Тварина</th>
+                            <th>Притулок</th>
+                            <th>Статус</th>
+                            <th>Дія</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentPetsTable">
+                        @foreach (var pet in Model.RecentPets)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="analytics-pet">
+                                        <img class="analytics-pet__avatar" src="@pet.PhotoUrl" alt="Фото @pet.PetName">
+                                        <div>
+                                            <strong>@pet.PetName</strong><br />
+                                            <span>@FormatRelativeDate(pet.CreatedAt)</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="recent-pet-shelter">@pet.ShelterName</td>
+                                <td>
+                                    <span class="@GetStatusBadgeClass(pet.Status)">
+                                        @pet.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <a class="analytics-link-inline" asp-controller="Pets" asp-action="Details" asp-route-id="@pet.PetId">Переглянути</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </article>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const usersInput = document.getElementById("recentUsersSearch");
+            const userRows = document.querySelectorAll("#recentUsersTable tr");
+            const input = document.getElementById("recentPetsSearch");
+            const rows = document.querySelectorAll("#recentPetsTable tr");
+
+            if (usersInput && userRows.length > 0) {
+                usersInput.addEventListener("input", function () {
+                    const value = usersInput.value.trim().toLowerCase();
+
+                    userRows.forEach(function (row) {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = value === "" || text.includes(value) ? "" : "none";
+                    });
+                });
+            }
+
+            if (input && rows.length > 0) {
+                input.addEventListener("input", function () {
+                    const value = input.value.trim().toLowerCase();
+
+                    rows.forEach(function (row) {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = value === "" || text.includes(value) ? "" : "none";
+                    });
+                });
+            }
+        })();
+    </script>
+}

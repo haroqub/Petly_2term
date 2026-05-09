@@ -1,0 +1,102 @@
+@model List<Petly.Models.Notification>
+
+@{
+    ViewData["Title"] = "Сповіщення";
+}
+
+<div class="notifications-page">
+
+    <div class="notifications-header">
+        <h2>🔔 Сповіщення</h2>
+
+        @if (Model.Any())
+        {
+            <form asp-action="MarkAllAsRead" method="post">
+                <button type="submit" class="btn mark-all-as-read">
+                    Позначити всі як прочитані
+                </button>
+            </form>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <p>Немає сповіщень.</p>
+        </div>
+    }
+    else
+    {
+        <div class="notification-table-wrapper">
+
+            <table class="notification-table">
+
+                <thead>
+                    <tr>
+                        <th>Тип</th>
+                        <th>Повідомлення</th>
+                        <th>Дата</th>
+                        <th>Статус</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var n in Model)
+                    {
+                        <tr class="@(n.IsRead ? "" : "row-unread")">
+
+                            <td class="msg-cell">
+                                @n.Message
+                            </td>
+
+                            <td>
+                                <span class="type-badge">
+                                    @n.Type
+                                </span>
+                            </td>
+
+                            <td>
+                                @n.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                            </td>
+
+                            <td>
+                                @if (n.IsRead)
+                                {
+                                    <span class="status-read">Прочитано</span>
+                                }
+                                else
+                                {
+                                    <span class="status-new">Нове</span>
+                                }
+                            </td>
+
+                            <td class="actions-cell">
+
+                                @if (!n.IsRead)
+                                {
+                                    <form asp-action="MarkAsRead" method="post">
+                                        <input type="hidden" name="id" value="@n.Id" />
+                                        <button type="submit" style="background: rgb(152, 201, 152); color: black; font-size:20px; border-radius: 8px; padding: 6px 10px; border: none; cursor: pointer; line-height: 1; font-size: 18px;">
+                                                    ✔
+                                                </button>
+                                    </form>
+                                }
+
+                                <form asp-action="Delete" method="post">
+                                    <input type="hidden" name="id" value="@n.Id" />
+                                    <button type="submit" class="btn-icon btn-delete">
+                                        🗑
+                                    </button>
+                                </form>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    }
+
+</div>

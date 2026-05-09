@@ -1,0 +1,198 @@
+@using System.Security.Claims
+@inject Petly.Business.Services.NotificationService NotificationService
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Petly</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/dist/app.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Petly.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="loader-overlay" data-loader>
+        <div class="loader-card" role="status" aria-live="polite">
+            <div class="loader-spinner"></div>
+            <span>Petly завантажується…</span>
+        </div>
+    </div>
+
+    @{
+        var controllerName = ViewContext?.ActionDescriptor?.RouteValues?["controller"] ?? "";
+        var actionName = ViewContext?.ActionDescriptor?.RouteValues?["action"] ?? "";
+        var showHeader = !(string.Equals(controllerName, "Account", System.StringComparison.OrdinalIgnoreCase)
+                           && (string.Equals(actionName, "Login", System.StringComparison.OrdinalIgnoreCase)
+                               || string.Equals(actionName, "Register", System.StringComparison.OrdinalIgnoreCase)
+                               || string.Equals(actionName, "ForgotPassword", System.StringComparison.OrdinalIgnoreCase)
+                               || string.Equals(actionName, "VerifyResetCode", System.StringComparison.OrdinalIgnoreCase)
+                               || string.Equals(actionName, "ResetPassword", System.StringComparison.OrdinalIgnoreCase)));
+    }
+
+    @if (showHeader)
+    {
+            int unreadCount = 0;
+
+    if (User.Identity?.IsAuthenticated ?? false && User.IsInRole("user"))
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (int.TryParse(userIdClaim, out int userId))
+        {
+            unreadCount = await NotificationService.GetUnreadCount(userId);
+        }
+    }
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-light app-navbar mb-3">
+                <div class="container-fluid">
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><span class="logo-text">Petly</span></a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav mx-auto">
+                            <li class="nav-item">
+                                <a class="nav-link menu-link" asp-area="" asp-controller="Home" asp-action="Index">Головна</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link menu-link" asp-area="" asp-controller="Home" asp-action="About">Про Нас</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link menu-link" asp-area="" asp-controller="Needs" asp-action="Index">Потреби</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link menu-link" asp-area="" asp-controller="Adoption" asp-action="Index">Адопція</a>
+                            </li>
+
+                            <li class="nav-item">
+    <a class="nav-link menu-link" asp-area="" asp-controller="SuccessStories" asp-action="Index">Щасливі історії</a>
+</li>
+
+
+
+                            @if (User.Identity.IsAuthenticated && User.IsInRole("user"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link menu-link" href="/Favorites" style="color: black;">Обране</a>
+                                </li>
+                            }
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link menu-link"
+                                    asp-controller="ViewedPets"
+                                    asp-action="My"
+                                    style="color: black;">
+                                        Переглянуті
+                                    </a>
+                                </li>
+
+                            @if (User.Identity.IsAuthenticated && User.IsInRole("user"))
+                            {
+                                <li class="nav-item position-relative">
+                                    <a class="nav-link menu-link"
+                                    asp-controller="Notifications"
+                                    asp-action="Index">
+                                        🔔
+
+                                        @if (unreadCount > 0)
+                                        {
+                                            <span class="notif-badge">
+                                                @unreadCount
+                                            </span>
+                                        }
+                                    </a>
+                                </li>
+                            }
+                            }
+
+                            @if (User.IsInRole("shelter_admin") || User.IsInRole("system_admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link menu-link" asp-area="" asp-controller="Pets" asp-action="Index">Тварини</a>
+                                </li>
+                            }
+                        </ul>
+
+                        <ul class="navbar-nav ms-auto align-items-center gap-2">
+                            @if (User.IsInRole("system_admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link menu-link" asp-area="" asp-controller="Admin" asp-action="Analytics">Аналітика</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link menu-link" asp-area="" asp-controller="Account" asp-action="Users">Користувачі</a>
+                                </li>
+                            }
+
+                            @if (User.Identity?.IsAuthenticated ?? false)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link menu-link" asp-area="" asp-controller="Account" asp-action="Profile">
+                                        Мій профіль
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-logout">Вийти</button>
+                                    </form>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link menu-link" asp-area="" asp-controller="Account" asp-action="Login">Увійти</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link menu-link" asp-area="" asp-controller="Account" asp-action="Register">Реєстрація</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    }
+
+    <div class="app-shell">
+        <main role="main" class="pb-3">
+            @if (TempData["Success"] is string successMessage)
+            {
+                <div class="flash-stack">
+                    <div class="flash-message flash-message--success" role="alert">
+                        <p class="flash-message__text">@successMessage</p>
+                        <button type="button" class="flash-message__close" data-dismiss-flash aria-label="Закрити">×</button>
+                    </div>
+                </div>
+            }
+
+            @if (TempData["Error"] is string errorMessage)
+            {
+                <div class="flash-stack">
+                    <div class="flash-message flash-message--error" role="alert">
+                        <p class="flash-message__text">@errorMessage</p>
+                        <button type="button" class="flash-message__close" data-dismiss-flash aria-label="Закрити">×</button>
+                    </div>
+                </div>
+            }
+
+            @RenderBody()
+        </main>
+    </div>
+
+    <!--<footer class="border-top footer text-muted mt-4">
+        <div class="container text-center">
+            &copy; 2026 - Petly
+        </div>
+    </footer>-->
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/dist/app.min.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

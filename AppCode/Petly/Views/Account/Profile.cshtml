@@ -1,0 +1,77 @@
+@model Petly.Models.EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Мій профіль";
+    var profileTitle = string.Join(" ", new[] { Model.Name, Model.Surname }.Where(value => !string.IsNullOrWhiteSpace(value)));
+    if (string.IsNullOrWhiteSpace(profileTitle))
+    {
+        profileTitle = Model.Email;
+    }
+}
+
+<section class="profile-page">
+    <div class="section-header">
+        <div class="section-header__copy">
+            <span class="section-kicker">Account</span>
+            <h1 class="section-title">Мій профіль</h1>
+            <p class="section-subtitle">Тримайте контактні дані та фото профілю актуальними, щоб ваш акаунт виглядав охайно й довірливо.</p>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar-wrap">
+                <img src="@(Model.ExistingImagePath ?? "/images/default-profile.png")"
+                     class="profile-avatar"
+                     alt="Фото профілю">
+            </div>
+
+            <div class="profile-intro">
+                <span class="profile-badge">Petly Profile</span>
+                <h1 class="profile-title">@profileTitle</h1>
+                <p class="profile-email">@Model.Email</p>
+                <p class="profile-subtitle">Оновіть особисті дані та фото, щоб ваш профіль виглядав акуратно й впізнавано.</p>
+            </div>
+        </div>
+
+        <form asp-action="Profile" method="post" enctype="multipart/form-data" class="profile-form">
+            <div asp-validation-summary="ModelOnly" class="auth-summary"></div>
+
+            <div class="profile-upload">
+                <label class="form-label profile-label" for="profileImage">Змінити фото</label>
+                <input id="profileImage" type="file" name="profileImage" class="form-control profile-file-input" />
+            </div>
+
+            @if (Model.ShowNameFields)
+            {
+                <div class="profile-grid">
+                    <div>
+                        <label asp-for="Name" class="form-label profile-label">Ім’я</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="field-error"></span>
+                    </div>
+
+                    <div>
+                        <label asp-for="Surname" class="form-label profile-label">Прізвище</label>
+                        <input asp-for="Surname" class="form-control" />
+                        <span asp-validation-for="Surname" class="field-error"></span>
+                    </div>
+                </div>
+            }
+
+            <div>
+                <label asp-for="Email" class="form-label profile-label">Email</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="field-error"></span>
+            </div>
+
+            <div class="profile-actions">
+                <button type="submit" class="btn-auth-primary profile-save-button">Зберегти зміни</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

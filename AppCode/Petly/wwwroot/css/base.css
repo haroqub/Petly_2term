@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Chewy&family=Nunito:wght@400;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+    --petly-bg: #fffaf0;
+    --petly-surface: #ffffff;
+    --petly-surface-soft: #fff3d1;
+    --petly-border: #684400;
+    --petly-border-soft: rgba(255, 174, 0, 0.14);
+    --petly-text: #2e2412;
+    --petly-text-muted: #79613a;
+    --petly-accent: #ffd84d;
+    --petly-accent-deep: #ff9d00;
+    --petly-accent-warm: #ffbf2f;
+    --petly-cream: #f2e79a;
+    --petly-radius: 16px;
+    --petly-radius-lg: 24px;
+    --petly-shadow-sm: 0 10px 24px rgba(150, 102, 21, 0.08);
+    --petly-shadow-md: 0 18px 42px rgba(150, 102, 21, 0.12);
+    --petly-transition: 180ms ease;
+    --petly-container: 1560px;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Nunito", "Segoe UI", Helvetica, Arial, sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(255, 174, 0, 0.1), transparent 24rem),
+        linear-gradient(180deg, #fffdf8 0%, #fff8eb 100%);
+    color: var(--petly-text);
+    min-height: 100vh;
+}
+
+a {
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+

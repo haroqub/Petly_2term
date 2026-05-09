@@ -1,0 +1,39 @@
+@model Petly.Models.AdoptionApplication
+
+@{
+    ViewData["Title"] = "Профіль кандидата";
+}
+
+<section class="page-section">
+    <div class="section-header">
+        <div class="section-header__copy">
+            <span class="section-kicker">Applicant Profile</span>
+            <h1 class="section-title">Інформація про кандидата</h1>
+            <p class="section-subtitle">Контакти та дані, які користувач залишив разом із заявкою на адопцію.</p>
+        </div>
+    </div>
+
+    <div class="page-card adoption-user-card">
+        <div class="adoption-user-card__grid">
+            <div class="adoption-user-card__group">
+                <h3 class="adoption-user-card__heading">Заявка</h3>
+                <p><strong>Тварина:</strong> @(Model.Pet?.PetName ?? "Невідома тварина")</p>
+                <p><strong>Статус:</strong> @Model.Status</p>
+                <p><strong>Дата подачі:</strong> @Model.SubmissionDate.ToShortDateString()</p>
+            </div>
+
+            <div class="adoption-user-card__group">
+                <h3 class="adoption-user-card__heading">Кандидат</h3>
+                <p><strong>Ім'я:</strong> @Model.ApplicantName</p>
+                <p><strong>Прізвище:</strong> @Model.ApplicantSurname</p>
+                <p><strong>Вік:</strong> @Model.ApplicantAge</p>
+                <p><strong>Контакти:</strong> @Model.ContactInfo</p>
+                <p><strong>Email акаунта:</strong> @(Model.UserProfile?.Email ?? "—")</p>
+            </div>
+        </div>
+
+        <a asp-action="Index" class="btn btn-auth-secondary btn-auth-secondary--soft">
+            Назад до заявок
+        </a>
+    </div>
+</section>

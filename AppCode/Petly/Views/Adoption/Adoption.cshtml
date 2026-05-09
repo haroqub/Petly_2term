@@ -1,0 +1,133 @@
+@model List<Petly.Models.AdoptionApplication>
+
+@{
+    ViewData["Title"] = "Мої заявки";
+    var isAdmin = ViewBag.IsAdmin is true;
+    var canManageApplications = ViewBag.CanManageApplications is true;
+
+    string GetStatusLabel(string? status)
+    {
+        return Petly.Models.AdoptionStatuses.Normalize(status);
+    }
+
+    string GetStatusClass(string? status)
+    {
+        return GetStatusLabel(status) switch
+        {
+            "Очікує" => "status-pill status-pill--pending",
+            "Схвалено" => "status-pill status-pill--approved",
+            "Відхилено" => "status-pill status-pill--rejected",
+            "Автоматично відхилено" => "status-pill status-pill--auto-rejected",
+            _ => "status-pill status-pill--pending",
+        };
+    }
+}
+
+<section class="page-section">
+    <div class="section-header">
+        <div class="section-header__copy">
+            <span class="section-kicker">Adoption Desk</span>
+            <h1 class="section-title">Заявки на адопцію</h1>
+            @if (isAdmin)
+            {
+                <p class="section-subtitle">Переглядайте кандидатів, стежте за статусами й обробляйте заявки в одному місці.</p>
+            }
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive page-card">
+            <table class="table table-hover align-middle data-table">
+                <thead class="table-light">
+                <tr>
+                <th>Тварина</th>
+                <th>Дата подачі</th>
+                
+                @if (isAdmin)
+                {
+                    <th>Кандидат</th>
+                }
+                
+                <th>Статус</th>
+                
+                @if (canManageApplications || User.IsInRole("user"))
+                {
+                    <th>Дії</th>
+                }
+                </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var app in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-controller="Pets" asp-action="Details" asp-route-id="@app.PetId" 
+                                   class="entity-link">
+                                    @(app.Pet != null ? app.Pet.PetName : "Невідома тварина")
+                                </a>
+                            </td>
+                            
+                            <td>@app.SubmissionDate.ToShortDateString()</td>
+                            
+                            @if (isAdmin)
+                            {
+                                <td>
+                                <strong>@(app.UserProfile?.Name) @(app.UserProfile?.Surname)</strong>
+                                <br />
+                                <a asp-controller="Adoption" asp-action="UserDetails" asp-route-adoptId="@app.AdoptId" 
+                                class="adoption-profile-link">
+                                Переглянути
+                                </a>
+                                </td>
+                            }
+                            
+                            <td>
+                                <span class="@GetStatusClass(app.Status)">@GetStatusLabel(app.Status)</span>
+                            </td>
+                            
+                            @if (canManageApplications || User.IsInRole("user"))
+                            {
+                                <td>
+                                @if (canManageApplications)
+                                {
+                                    @if (GetStatusLabel(app.Status) == Petly.Models.AdoptionStatuses.Pending)
+                                    {
+                                        <div class="adoption-action-group">
+                                            <form asp-controller="Adoption" asp-action="Approve" asp-route-adoptId="@app.AdoptId" method="post">
+                                            <button type="submit" class="btn btn-adoption-action btn-adoption-action--approve">Схвалити</button>
+                                            </form>
+                                            <form asp-controller="Adoption" asp-action="Reject" asp-route-adoptId="@app.AdoptId" method="post">
+                                                <button type="submit" class="btn btn-adoption-action btn-adoption-action--reject">Відхилити</button>
+                                            </form>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Оброблено</span>
+                                    }
+                                }
+                                else if (GetStatusLabel(app.Status) == Petly.Models.AdoptionStatuses.Pending && User.IsInRole("user"))
+                                {
+                                    <form asp-controller="Adoption" asp-action="Delete" asp-route-adoptId="@app.AdoptId" method="post" style="display:inline-block;" 
+                                    onsubmit="return confirm('Ви впевнені, що хочете скасувати цю заявку?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Скасувати заявку</button>
+                                    </form>
+                                }
+                                </td>
+                            }
+                        </tr>                       
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <h4 class="empty-state__title">Поки що заявок немає</h4>
+            <p class="empty-state__text">Коли з’являться нові заявки на адопцію, ви побачите їх тут. <a asp-controller="Home" asp-action="Index" class="entity-link">Переглянути тваринок</a>.</p>
+        </div>
+    }
+</section>

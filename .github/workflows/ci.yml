@@ -1,0 +1,73 @@
+name: CI - Petly_7
+
+on:
+  push:
+    branches:
+      - main
+      - petly_7
+      - 'feature/**'
+      - 'feat/**'
+    paths:
+      - 'AppCode/**'
+      - '.github/workflows/ci.yml'
+
+  pull_request:
+    branches:
+      - main
+      - petly_7
+    paths:
+      - 'AppCode/**'
+      - '.github/workflows/ci.yml'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  PROJECT_PATH: AppCode/Petly/Petly.csproj
+  TEST_PROJECT_PATH: AppCode/Petly.Tests/Petly.Tests.csproj
+  PUBLISH_DIR: ${{ github.workspace }}/published-app
+
+jobs:
+  build-test-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Restore dependencies
+        run: dotnet restore $TEST_PROJECT_PATH
+
+      - name: Build solution
+        run: dotnet build $TEST_PROJECT_PATH --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test $TEST_PROJECT_PATH --configuration Release --no-build --verbosity normal
+
+      - name: Publish web app
+        run: dotnet publish $PROJECT_PATH --configuration Release --no-restore --output "$PUBLISH_DIR"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: petly-webapp
+          path: ${{ env.PUBLISH_DIR }}
+          retention-days: 7

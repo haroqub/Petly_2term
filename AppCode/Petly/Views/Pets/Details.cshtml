@@ -1,0 +1,176 @@
+@model Petly.Models.Pet
+@using Microsoft.AspNetCore.Identity
+@using Petly.Models
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    var currentUser = SignInManager.IsSignedIn(User)
+        ? UserManager.GetUserAsync(User).Result
+        : null;
+    var role = currentUser != null
+        ? UserManager.GetRolesAsync(currentUser).Result.FirstOrDefault() ?? "user"
+        : "user";
+    var accountId = currentUser?.Id;
+    var photoUrl = string.IsNullOrWhiteSpace(Model.PhotoUrl)
+        ? "/images/pets/no-photo.svg"
+        : Model.PhotoUrl.StartsWith("http", System.StringComparison.OrdinalIgnoreCase)
+            ? Model.PhotoUrl
+            : "/" + Model.PhotoUrl.TrimStart('/');
+    var isShelterAdminOwner = role == "shelter_admin" && Model.ShelterId == accountId;
+    var isRegularUser = role != "shelter_admin" && role != "system_admin";
+    var healthSummary = $"{(Model.Vaccinated ? "вакцинований" : "потребує вакцинації")} · {(Model.Sterilized ? "стерилізований" : "без стерилізації")}";
+    var isAdopted = string.Equals(Model.Status, "Прилаштований", System.StringComparison.OrdinalIgnoreCase)
+        || string.Equals(Model.Status, "Home", System.StringComparison.OrdinalIgnoreCase);
+    var statusText = isAdopted ? "Вже вдома" : "Шукає дім";
+    ViewData["Title"] = Model.PetName;
+}
+<section class="pet-details-page">
+    <div class="pet-details-hero">
+        <a asp-controller="Home" asp-action="Index" class="pet-details-back">← На головну</a>
+
+        <div class="pet-details-hero__content">
+            <div class="pet-details-hero__media">
+                <span class="status-pill @(isAdopted ? "status-pill--home" : "status-pill--available") pet-details-hero__status">
+                    @statusText
+                </span>
+                <img src="@photoUrl" alt="@Model.PetName" class="pet-details-hero__image" />
+            </div>
+
+            <div class="pet-details-hero__copy">
+                <div class="pet-details-rolebar">
+                    <span class="pet-details-rolebar__chip">Pet ID #@Model.PetId</span>
+                    @if (role == "system_admin")
+                    {
+                        <span class="pet-details-rolebar__chip pet-details-rolebar__chip--admin">Режим системного адміністратора</span>
+                    }
+                    else if (isShelterAdminOwner)
+                    {
+                        <span class="pet-details-rolebar__chip pet-details-rolebar__chip--admin">Режим адміністратора притулку</span>
+                    }
+                    else
+                    {
+                        <span class="pet-details-rolebar__chip">Картка для знайомства й адопції</span>
+                    }
+                </div>
+
+                <div>
+                    <p class="pet-details-hero__eyebrow">@Model.Type • @Model.Breed</p>
+                    <h1 class="pet-details-hero__title">@Model.PetName</h1>
+                    <p class="pet-details-hero__lead">
+                        @(string.IsNullOrWhiteSpace(Model.Description)
+                            ? "Цей улюбленець вже чекає на людину, яка подарує йому турботу, безпеку і стабільний дім."
+                            : Model.Description)
+                    </p>
+                </div>
+
+                <div class="pet-details-highlights">
+                    <article class="pet-details-highlight">
+                        <span class="pet-details-highlight__label">Вік</span>
+                        <strong class="pet-details-highlight__value">@(Model.Age.HasValue ? $"{Model.Age} {Model.AgeText}" : "Не вказано")</strong>
+                    </article>
+                    <article class="pet-details-highlight">
+                        <span class="pet-details-highlight__label">Стать</span>
+                        <strong class="pet-details-highlight__value">@(string.IsNullOrWhiteSpace(Model.Gender) ? "Не вказано" : Model.Gender)</strong>
+                    </article>
+                    <article class="pet-details-highlight">
+                        <span class="pet-details-highlight__label">Розмір</span>
+                        <strong class="pet-details-highlight__value">@(string.IsNullOrWhiteSpace(Model.Size) ? "Не вказано" : Model.Size)</strong>
+                    </article>
+                </div>
+
+                <div class="pet-details-hero__actions">
+                    @if (isRegularUser && !isAdopted)
+                    {
+                        <a asp-controller="Adoption" asp-action="Create" asp-route-petId="@Model.PetId" class="btn-auth-primary pet-details-action-primary">Подати заявку на адопцію</a>
+                        <a asp-controller="Needs" asp-action="Index" asp-route-shelterId="@Model.ShelterId" class="btn-auth-secondary pet-details-action-secondary">Допомогти притулку</a>
+                    }
+                    else if (isRegularUser)
+                    {
+                        <span class="pet-details-note">
+                            Ця тваринка вже знайшла дім. Ви можете переглянути інших улюбленців на головній сторінці.
+                        </span>
+                    }
+                    else if (isShelterAdminOwner)
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.PetId" class="btn-auth-primary pet-details-action-primary">Редагувати картку</a>
+                        <a asp-action="Delete" asp-route-id="@Model.PetId" class="btn-auth-secondary pet-details-action-secondary pet-details-action-secondary--danger">Видалити тварину</a>
+                    }
+                    else
+                    {
+                        <span class="pet-details-note">
+                            Ви переглядаєте картку в адміністративному режимі. Кнопки керування доступні власнику картки.
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pet-details-grid">
+        <section class="pet-details-panel">
+            <div class="pet-details-panel__header">
+                <span class="section-kicker">Профіль тварини</span>
+                <h2 class="pet-details-panel__title">Основна інформація</h2>
+            </div>
+
+            <div class="pet-details-facts">
+                <div class="pet-details-fact">
+                    <span class="pet-details-fact__label">Тип</span>
+                    <span class="pet-details-fact__value">@(string.IsNullOrWhiteSpace(Model.Type) ? "Не вказано" : Model.Type)</span>
+                </div>
+                <div class="pet-details-fact">
+                    <span class="pet-details-fact__label">Порода</span>
+                    <span class="pet-details-fact__value">@(string.IsNullOrWhiteSpace(Model.Breed) ? "Не вказано" : Model.Breed)</span>
+                </div>
+                <div class="pet-details-fact">
+                    <span class="pet-details-fact__label">Стать</span>
+                    <span class="pet-details-fact__value">@(string.IsNullOrWhiteSpace(Model.Gender) ? "Не вказано" : Model.Gender)</span>
+                </div>
+                <div class="pet-details-fact">
+                    <span class="pet-details-fact__label">Вік</span>
+                    <span class="pet-details-fact__value">@(Model.Age.HasValue ? $"{Model.Age} {Model.AgeText}" : "Не вказано")</span>
+                </div>
+                <div class="pet-details-fact">
+                    <span class="pet-details-fact__label">Розмір</span>
+                    <span class="pet-details-fact__value">@(string.IsNullOrWhiteSpace(Model.Size) ? "Не вказано" : Model.Size)</span>
+                </div>
+                <div class="pet-details-fact">
+                    <span class="pet-details-fact__label">Статус</span>
+                    <span class="pet-details-fact__value">@statusText</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="pet-details-panel pet-details-panel--aside">
+            <div class="pet-details-panel__header">
+                <span class="section-kicker">Здоров'я</span>
+                <h2 class="pet-details-panel__title">Стан і підготовка</h2>
+            </div>
+
+            <div class="pet-details-health">
+                <div class="pet-details-health__summary">@healthSummary</div>
+                <div class="pet-details-health__chips">
+                    <span class="pet-details-health__chip @(Model.Vaccinated ? "pet-details-health__chip--good" : "pet-details-health__chip--neutral")">
+                        @(Model.Vaccinated ? "Вакцинація є" : "Вакцинація не вказана")
+                    </span>
+                    <span class="pet-details-health__chip @(Model.Sterilized ? "pet-details-health__chip--good" : "pet-details-health__chip--neutral")">
+                        @(Model.Sterilized ? "Стерилізація є" : "Стерилізація не вказана")
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <section class="pet-details-panel pet-details-panel--wide">
+            <div class="pet-details-panel__header">
+                <span class="section-kicker">Характер і історія</span>
+                <h2 class="pet-details-panel__title">Що варто знати перед знайомством</h2>
+            </div>
+            <p class="pet-details-story">
+                @(string.IsNullOrWhiteSpace(Model.Description)
+                    ? "Опис поки що короткий, але картка вже доступна для перегляду. Перед адопцією або допомогою притулку можна перейти до відповідних дій вище."
+                    : Model.Description)
+            </p>
+        </section>
+
+    </div>
+</section>

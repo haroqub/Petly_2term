@@ -1,0 +1,79 @@
+@model List<Petly.Models.SuccessStory>
+
+@{
+    ViewData["Title"] = "Щасливі історії";
+    var isShelterAdmin = User.IsInRole("shelter_admin");
+}
+
+<div class="need-page">
+    <div class="section-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="section-header__copy mb-0">
+            <span class="section-kicker">Success Stories</span>
+            <h1 class="section-title">Історії щасливих хвостиків</h1>
+            <p class="section-subtitle mb-0">Вони чекали на диво, і воно сталося. Надихаючі історії врятованих життів та їхніх нових родин.</p>
+        </div>
+        
+        <div class="section-header__action">
+            @if (isShelterAdmin)
+            {
+                <a asp-action="Create" class="btn-need-secondary">Додати нову історію</a>
+            }
+
+        </div>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <section class="need-empty mt-5">
+            <h2>Поки що історій немає</h2>
+            <p>Але зовсім скоро тут з'являться перші розповіді про врятованих хвостиків.</p>
+        </section>
+    }
+    else
+    {
+        <section class="need-grid mt-4">
+            @foreach (var story in Model)
+            {
+                <article class="need-card need-card--grouped">
+                    @if (!string.IsNullOrEmpty(story.ImageUrl))
+                    {
+                        <div style="width: 100%; height: 250px; overflow: hidden; border-radius: 12px 12px 0 0; margin-bottom: 15px;">
+                            <img src="@story.ImageUrl" alt="@story.Pet?.PetName" style="width: 100%; height: 100%; object-fit: cover;" />
+                        </div>
+                    }
+
+                    <div style="padding: 0 20px 20px 20px;">
+                        <div class="need-card__top">
+                            <div>
+                                <p class="need-card__label">Герой історії</p>
+                                <h2 class="need-card__title">@story.Pet?.PetName</h2>
+                            </div>
+                            <span class="need-card__location">@story.CreatedAt.ToShortDateString()</span>
+                        </div>
+
+                        <div class="need-card__group">
+                            <div class="need-card__group-header">
+                                <p class="need-card__section-title" style="font-size: 1.1rem; font-weight: bold;">@story.Title</p>
+                            </div>
+
+                            <ul class="need-list" style="padding-left: 0;">
+                                <li class="need-list__item" style="border: none; padding: 0; list-style-type: none;">
+                                    <div class="need-list__content">
+                                       <p class="need-list__description" style="line-height: 1.6;">@story.StoryText</p>
+                                    </div>
+                               </li>
+                            </ul>
+                             
+                            @if (isShelterAdmin)
+                            {
+                                <div style="margin-top: 15px; border-top: 1px solid #edf2f7; padding-top: 10px; display: flex; justify-content: flex-end;">
+                                <a asp-action="Edit" asp-route-id="@story.Id" class="btn-need-inline">Редагувати історію</a>
+                                </div>
+                            } 
+                        </div>
+                    </div>
+                </article>
+            }
+        </section>
+    }
+</div>

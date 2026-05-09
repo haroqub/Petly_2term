@@ -1,0 +1,72 @@
+@model AboutPageViewModel
+
+@{
+    ViewData["Title"] = "Редагувати Про Нас";
+}
+
+<section class="need-form-shell">
+    <div class="need-form-panel">
+        <p class="need-form-panel__eyebrow">About Page</p>
+        <h1 class="need-form-panel__title">Редагування сторінки Про Нас</h1>
+        <p class="need-form-panel__text">
+            Оновіть текст, який бачать користувачі на сторінці з інформацією про Petly.
+        </p>
+    </div>
+
+    <div class="need-form-card">
+        <form asp-action="EditAbout" method="post" class="need-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Eyebrow" class="form-label"></label>
+                <input asp-for="Eyebrow" class="form-control need-input" />
+                <span asp-validation-for="Eyebrow" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="HeroTitle" class="form-label"></label>
+                <input asp-for="HeroTitle" class="form-control need-input" />
+                <span asp-validation-for="HeroTitle" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="HeroText" class="form-label"></label>
+                <textarea asp-for="HeroText" class="form-control need-textarea" rows="4"></textarea>
+                <span asp-validation-for="HeroText" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ContentTitle" class="form-label"></label>
+                <input asp-for="ContentTitle" class="form-control need-input" />
+                <span asp-validation-for="ContentTitle" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ContentText" class="form-label"></label>
+                <textarea asp-for="ContentText" class="form-control need-textarea" rows="8"></textarea>
+                <span asp-validation-for="ContentText" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ContactsTitle" class="form-label"></label>
+                <input asp-for="ContactsTitle" class="form-control need-input" />
+                <span asp-validation-for="ContactsTitle" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Contacts" class="form-label"></label>
+                <textarea asp-for="Contacts" class="form-control need-textarea" rows="5"></textarea>
+                <span asp-validation-for="Contacts" class="text-danger small"></span>
+            </div>
+
+            <div class="need-form__actions">
+                <button type="submit" class="btn-need-primary">Зберегти</button>
+                <a asp-action="About" class="btn-need-secondary">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

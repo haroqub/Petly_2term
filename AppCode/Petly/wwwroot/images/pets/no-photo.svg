@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-labelledby="title desc">
+  <title id="title">Немає фото</title>
+  <desc id="desc">Силует лапи на світлому фоні</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fff7dc" offset="0%"/>
+      <stop stop-color="#ffe9b6" offset="100%"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="240" fill="url(#bg)" rx="18" ry="18"/>
+  <g fill="#c4a464" transform="translate(92 58)">
+    <circle cx="32" cy="28" r="22"/>
+    <circle cx="86" cy="22" r="20"/>
+    <circle cx="62" cy="52" r="20"/>
+    <circle cx="116" cy="48" r="18"/>
+    <path d="M38 70c18-14 52-12 68 6s18 42 0 54c-18 12-46 12-64 0s-22-46-4-60z"/>
+  </g>
+  <text x="160" y="198" text-anchor="middle" font-family="'Nunito', Arial, sans-serif" font-size="18" fill="#8a6c2c" font-weight="700">Фото відсутнє</text>
+</svg>

@@ -1,0 +1,81 @@
+@model Petly.Models.AdoptionRequestViewModel
+
+@{
+    ViewData["Title"] = "Підтвердження адопції";
+
+    string photoUrl = string.IsNullOrEmpty(Model.PetPhotoUrl)
+        ? "/images/pets/no-photo.svg"
+        : Model.PetPhotoUrl.StartsWith("http", System.StringComparison.OrdinalIgnoreCase)
+            ? Model.PetPhotoUrl
+            : "/" + Model.PetPhotoUrl.TrimStart('/');
+}
+
+<section class="page-section">
+    <div class="section-header">
+        <div class="section-header__copy">
+            <span class="section-kicker">Adoption Request</span>
+            <h1 class="section-title">Підтвердження заявки</h1>
+            <p class="section-subtitle">Підтвердьте, що хочете подати заявку саме на цю тваринку, і залиште контакти для зв'язку з притулком.</p>
+        </div>
+    </div>
+
+    <div class="adoption-request-layout">
+        <div class="page-card adoption-pet-card">
+            <img src="@photoUrl" alt="@Model.PetName" class="adoption-pet-card__image">
+            <div class="adoption-pet-card__body">
+                <h2 class="adoption-pet-card__title">@Model.PetName</h2>
+                <p class="adoption-pet-card__meta">@Model.PetType, @Model.PetAge @Model.PetAgeText</p>
+                <p class="adoption-pet-card__text">Після відправки заявку побачить адміністратор притулку, де перебуває ця тваринка.</p>
+            </div>
+        </div>
+
+        <div class="page-card adoption-request-card">
+            <form asp-controller="Adoption" asp-action="Adopt" method="post" class="auth-form" novalidate>
+                @Html.AntiForgeryToken()
+                <input asp-for="PetId" type="hidden" />
+                <input asp-for="PetName" type="hidden" />
+                <input asp-for="PetType" type="hidden" />
+                <input asp-for="PetAge" type="hidden" />
+                <input asp-for="PetAgeText" type="hidden" />
+                <input asp-for="PetPhotoUrl" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly" class="auth-validation"></div>
+
+                <div class="auth-field-grid auth-field-grid--double">
+                    <div class="auth-field">
+                        <label asp-for="ApplicantName" class="auth-label">Ім'я</label>
+                        <input asp-for="ApplicantName" class="form-control auth-input" />
+                        <span asp-validation-for="ApplicantName" class="text-danger"></span>
+                    </div>
+
+                    <div class="auth-field">
+                        <label asp-for="ApplicantSurname" class="auth-label">Прізвище</label>
+                        <input asp-for="ApplicantSurname" class="form-control auth-input" />
+                        <span asp-validation-for="ApplicantSurname" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="auth-field">
+                    <label asp-for="ApplicantAge" class="auth-label">Ваш вік</label>
+                    <input asp-for="ApplicantAge" class="form-control auth-input" min="18" max="120" placeholder="Ваш вік" />
+                    <span asp-validation-for="ApplicantAge" class="text-danger"></span>
+                </div>
+
+                <div class="auth-field">
+                    <label asp-for="ContactInfo" class="auth-label">Телефон або інші контакти</label>
+                    <textarea asp-for="ContactInfo" class="form-control auth-input auth-textarea" rows="4" placeholder="Наприклад: +380..., Telegram, Instagram" autocomplete="off" data-lpignore="true"></textarea>
+                    <span asp-validation-for="ContactInfo" class="text-danger"></span>
+                </div>
+
+                <div class="adoption-request-actions">
+                    <a asp-controller="Pets" asp-action="Details" asp-route-id="@Model.PetId" class="btn btn-auth-secondary btn-auth-secondary--soft">Назад</a>
+                    <button type="submit" class="btn btn-auth-primary">Надіслати заявку</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

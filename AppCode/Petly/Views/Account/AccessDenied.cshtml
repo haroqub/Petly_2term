@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Доступ заборонено";
+    var returnUrl = ViewBag.ReturnUrl as string;
+}
+
+<section class="page-section">
+    <div class="empty-state">
+        <span class="section-kicker">Доступ обмежено</span>
+        <h1 class="empty-state__title">У вас немає доступу до цієї сторінки</h1>
+        <p class="empty-state__text">
+            Ця сторінка доступна лише користувачам з відповідною роллю. Якщо вам потрібен доступ, зверніться до адміністратора системи.
+        </p>
+
+        @if (!string.IsNullOrWhiteSpace(returnUrl))
+        {
+            <p class="empty-state__text">
+                Запитувана адреса: <strong>@returnUrl</strong>
+            </p>
+        }
+
+        <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
+            <a asp-controller="Home" asp-action="Index" class="btn-auth-primary">На головну</a>
+            <a asp-controller="Account" asp-action="Profile" class="btn-auth-secondary btn-auth-secondary--soft">Мій профіль</a>
+        </div>
+    </div>
+</section>

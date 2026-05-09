@@ -1,0 +1,166 @@
+﻿@model List<Petly.Models.Pet>
+
+@{
+    ViewData["Title"] = "Головна";
+    
+    bool isAdmin = User.IsInRole("shelter_admin") || User.IsInRole("system_admin");
+
+    string GetPetStatusClass(string? status)
+    {
+        return status switch
+        {
+            "Прилаштований" or "Home" => "status-pill status-pill--home",
+            _ => "status-pill status-pill--available",
+        };
+    }
+
+    var favoriteIds = ViewBag.FavoriteIds as List<int> ?? new List<int>();
+}
+
+<section class="page-section home-page-section">
+
+    @if (!isAdmin)
+    {
+        <div class="section-header">
+            <div class="section-header__copy">
+                <span class="section-kicker">Petly Main</span>
+                <h1 class="section-title">Знайди свого хвостатого друга</h1>
+                <p class="section-subtitle">
+                    Переглядайте доступних улюбленців, фільтруйте за типом і швидко переходьте до адопції чи допомоги притулку.
+                </p>
+            </div>
+        </div>
+    }
+
+    <div class="hero-toolbar">
+        <form method="get" asp-controller="Home" asp-action="Index" class="filter-bar">
+            <button type="submit" name="typeFilter" value="Усі" 
+                    class="btn btn-filter @(ViewBag.TypeFilter=="Усі"?"active":"")"
+                    onclick="document.querySelector('input[name=searchTerm]').value=''">
+                Усі
+            </button>
+            <button type="submit" name="typeFilter" value="Собака" class="btn btn-filter @(ViewBag.TypeFilter=="Собака"?"active":"")">Собаки</button>
+            <button type="submit" name="typeFilter" value="Кіт" class="btn btn-filter @(ViewBag.TypeFilter=="Кіт"?"active":"")">Коти</button>
+            <button type="submit" name="typeFilter" value="Прилаштовані" class="btn btn-filter @(ViewBag.TypeFilter=="Прилаштовані"?"active":"")">Прилаштовані</button>
+            <input type="hidden" name="searchTerm" value="@ViewBag.SearchTerm" />
+        </form>
+
+        <div class="search-form">
+            <div class="search-group">
+                <input type="text" id="searchInput" class="form-control search-input" placeholder="Пошук за ім'ям">
+            </div>
+        </div>
+    </div>
+
+    <div class="pet-grid" id="petGrid">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var p in Model)
+            {
+                bool isFavorite = favoriteIds.Contains(p.PetId);
+
+                <div class="pet-card-wrapper">
+                    <div class="card h-100 pet-card">
+                        <div class="pet-media">
+                            @if (p.Status == "Прилаштований" || p.Status == "Home")
+                            {
+                                <span class="pet-status-badge @GetPetStatusClass(p.Status)">Вже вдома</span>
+                            }
+                            <img src="@(string.IsNullOrEmpty(p.PhotoUrl) 
+                                ? "/images/pets/no-photo.svg" 
+                                : p.PhotoUrl.StartsWith("http", System.StringComparison.OrdinalIgnoreCase) 
+                                    ? p.PhotoUrl 
+                                    : "/" + p.PhotoUrl.TrimStart('/'))" 
+                                 class="card-img-top pet-img" alt="@p.PetName">
+                        </div>
+
+                        <div class="card-body p-0">
+                            <div class="pet-actions @(!isAdmin ? string.Empty : "pet-actions--admin")">
+
+                                <a href="/Pets/Details/@p.PetId" class="btn btn-pet-action btn-pet-action--square">Більше</a>
+
+                                @if (!isAdmin)
+                                {
+                                    <a href="/Needs/Index?shelterId=@p.ShelterId" class="btn btn-pet-action btn-pet-action--square">
+                                        Допомога
+                                    </a>
+
+                                    @if (p.Status == "Прилаштований" || p.Status == "Home")
+                                    {
+                                        <span class="btn btn-pet-action pet-status-home" style="pointer-events: none;">
+                                            Вже вдома 🐾
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Adoption" asp-action="Create" asp-route-petId="@p.PetId" class="btn btn-pet-action btn-pet-action--square">
+                                            Адопція
+                                        </a>
+                                    }
+
+                                    
+                                    <button type="button"
+                                            class="btn btn-pet-action btn-pet-action--square fw-bold favorite-btn"
+                                            data-pet-id="@p.PetId">
+                                        @(isFavorite ? "❤️" : "🤍")
+                                    </button>
+                                }
+                            </div>
+
+                            <div class="pet-card__meta">
+                                <h5 class="pet-card__title pet-name">@p.PetName</h5>
+                                <p class="pet-card__details">@p.Type, @p.Age @p.AgeText</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const input = document.getElementById("searchInput");
+
+    if (input) {
+        input.addEventListener("input", function () {
+
+            const value = this.value.toLowerCase();
+
+            document.querySelectorAll(".pet-card-wrapper").forEach(card => {
+
+                const name = card.querySelector(".pet-name")?.textContent.toLowerCase() || "";
+
+                card.style.display = name.includes(value) ? "" : "none";
+
+            });
+
+        });
+    }
+
+    document.querySelectorAll(".favorite-btn").forEach(btn => {
+
+        btn.addEventListener("click", async function () {
+
+            const petId = this.dataset.petId;
+
+            const response = await fetch("/Favorites/Add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `petId=${petId}`
+            });
+
+            if (response.ok) {
+                this.textContent = "❤️";
+            }
+
+        });
+
+    });
+
+});
+</script>

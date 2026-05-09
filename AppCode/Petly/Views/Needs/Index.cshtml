@@ -1,0 +1,120 @@
+@model List<Petly.Models.ShelterNeedGroupViewModel>
+
+@{
+    ViewData["Title"] = "Потреби";
+    var canCreate = (bool?)ViewBag.CanCreate == true;
+}
+
+<div class="need-page">
+    <div class="section-header">
+        <div class="section-header__copy">
+            <span class="section-kicker">Shelter Support</span>
+            <h1 class="section-title">Потреби притулків</h1>
+            <p class="section-subtitle">Актуальні запити від притулків, щоб допомога була швидкою, зрозумілою і справді корисною.</p>
+        </div>
+    </div>
+
+    <section class="need-hero">
+        <div class="need-hero__content">
+            <h1 class="need-hero__title">Один притулок, одна картка, усі потреби в одному місці</h1>
+            <p class="need-hero__text">
+                Переглядайте запити по притулках без дублювання: кожна картка показує повний список актуальних потреб і способів допомоги.
+            </p>
+            <div class="need-hero__actions">
+                <a asp-controller="Home" asp-action="Adoption" class="btn-need-secondary">Перейти до адопції</a>
+            </div>
+        </div>
+        <div class="need-hero__badge">
+            <span>@Model.Count</span>
+            <small>притулків із потребами</small>
+        </div>
+    </section>
+
+    @if (TempData["Success"] is string message)
+    {
+        <div class="alert alert-success need-alert mt-4">@message</div>
+    }
+
+    @if (Model.Count == 0)
+    {
+        <section class="need-empty">
+            <h2>Поки що потреб немає</h2>
+            <p>Коли притулки додадуть нові запити, вони з’являться тут.</p>
+        </section>
+    }
+    else
+    {
+        <section class="need-grid">
+            @foreach (var shelter in Model)
+            {
+                <article class="need-card need-card--grouped">
+                    <div class="need-card__top">
+                        <div>
+                            <p class="need-card__label">Притулок</p>
+                            <h2 class="need-card__title">@shelter.ShelterName</h2>
+                        </div>
+                        <span class="need-card__location">@shelter.Location</span>
+                    </div>
+                    <div class="need-card__stats" aria-label="Статистика потреб притулку">
+                        <span>@shelter.ActiveNeedsCount активні</span>
+                        <span>@shelter.FulfilledNeedsCount виконані</span>
+                    </div>
+
+                    <div class="need-card__group">
+                        <div class="need-card__group-header">
+                            <p class="need-card__section-title">Що потрібно</p>
+                            @if (canCreate && shelter.CanManage)
+                            {
+                                <a asp-action="Create" asp-route-shelterId="@shelter.ShelterId" class="btn-need-inline">Додати потребу</a>
+                            }
+                        </div>
+
+                        <ul class="need-list">
+                            @foreach (var need in shelter.Needs)
+                            {
+                                <li class="need-list__item">
+                                    <div class="need-list__content">
+                                        <div class="need-list__heading">
+                                            <p class="need-list__description">@need.Description</p>
+                                            @if (need.IsFulfilled)
+                                            {
+                                                <span class="need-status need-status--fulfilled">Виконана</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="need-status need-status--active">Активна</span>
+                                            }
+                                        </div>
+                                        <p class="need-list__help"><span>Як допомогти:</span> @need.PaymentDetails</p>
+                                    </div>
+
+                                    @if (shelter.CanManage)
+                                    {
+                                        <div class="need-list__actions">
+                                            @if (need.IsFulfilled)
+                                            {
+                                                <form asp-action="MarkActive" asp-route-id="@need.NeedId" method="post" class="need-list__action-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn-need-inline">Повернути в активні</button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <form asp-action="MarkFulfilled" asp-route-id="@need.NeedId" method="post" class="need-list__action-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn-need-inline btn-need-inline--success">Закрити потребу</button>
+                                                </form>
+                                            }
+                                            <a asp-action="Edit" asp-route-id="@need.NeedId" class="btn-need-inline">Редагувати</a>
+                                            <a asp-action="Delete" asp-route-id="@need.NeedId" class="btn-need-inline btn-need-inline--danger">Видалити</a>
+                                        </div>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </article>
+            }
+        </section>
+    }
+</div>

@@ -1,0 +1,33 @@
+@model Petly.Models.Pet
+
+@{
+    ViewData["Title"] = "Видалити тварину";
+}
+
+<h2>Видалити тварину</h2>
+
+<div class="alert alert-danger">
+    Ви дійсно хочете видалити тварину <strong>@Model.PetName</strong>?
+</div>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">Тип</dt>
+        <dd class="col-sm-9">@Model.Type</dd>
+
+        <dt class="col-sm-3">Порода</dt>
+        <dd class="col-sm-9">@Model.Breed</dd>
+
+        <dt class="col-sm-3">Стать</dt>
+        <dd class="col-sm-9">@Model.Gender</dd>
+
+        <dt class="col-sm-3">Вік</dt>
+        <dd class="col-sm-9">@Model.Age @Model.AgeText</dd>
+    </dl>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="PetId" />
+        <button type="submit" class="btn btn-danger">Видалити</button>
+        <a asp-action="Index" class="btn btn-secondary">Скасувати</a>
+    </form>
+</div>

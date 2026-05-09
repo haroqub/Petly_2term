@@ -1,0 +1,72 @@
+@model List<Petly.Models.Favorite>
+
+@{
+    ViewData["Title"] = "Обране";
+}
+
+<section class="page-section home-page-section">
+    <div class="section-header">
+        <div class="section-header__copy">
+            <span class="section-kicker">Saved Pets</span>
+            <h1 class="section-title"> Моє обране</h1>
+            <p class="section-subtitle">Усі тварини, яких ви зберегли, щоб повернутися до них пізніше.</p>
+        </div>
+        <a asp-controller="Home" asp-action="Index" class="btn-auth-secondary">Назад</a>
+    </div>
+
+    <div class="pet-grid">
+
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                var p = item.Pet;
+
+                <div class="pet-card-wrapper">
+                    <div class="card h-100 pet-card">
+
+                        <div class="pet-media">
+                            <img src="@(string.IsNullOrEmpty(p.PhotoUrl) 
+                                ? "/images/pets/no-photo.svg" 
+                                : "/" + p.PhotoUrl.TrimStart('/'))"
+                                 class="card-img-top pet-img" alt="@p.PetName" />
+                        </div>
+
+                        <div class="card-body p-0">
+
+                            <div class="pet-actions pet-actions--favorite">
+
+                                <!-- Більше -->
+                                <a href="/Pets/Details/@p.PetId" class="btn btn-pet-action btn-pet-action--square">
+                                    Переглянути
+                                </a>
+
+                                <!-- Видалити -->
+                                <a asp-action="Remove" asp-route-id="@item.Id" class="btn btn-pet-action btn-pet-action--square text-danger fw-bold">
+                                    ❌
+                                </a>
+
+                            </div>
+
+                            <div class="pet-card__meta">
+                                <h5 class="pet-card__title">@p.PetName</h5>
+                                <p class="pet-card__details">@p.Type, @p.Age @p.AgeText</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div>
+                <div class="empty-state">
+                    <h4 class="empty-state__title">Поки що обране порожнє</h4>
+                    <p class="empty-state__text">Додавайте тваринок у ❤️, щоб швидко повертатися до них пізніше.</p>
+                </div>
+            </div>
+        }
+
+    </div>
+</section>

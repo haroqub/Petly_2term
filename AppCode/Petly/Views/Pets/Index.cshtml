@@ -1,0 +1,145 @@
+@model List<Petly.Models.Pet>
+
+@{
+    ViewData["Title"] = "Тварини";
+    var canUsePetActions = User.IsInRole("user") || User.IsInRole("shelter_admin");
+    var canManagePets = User.IsInRole("shelter_admin");
+}
+
+<section class="page-section pets-page-section">
+
+    <div class="pets-list-header">
+        <div>
+
+            <p class="section-kicker">Pets</p>
+
+            <h1 class="pets-list-title">Тварини</h1>
+            <p class="pets-list-count">Всього тварин: @Model.Count</p>
+        </div>
+
+        @if (canManagePets)
+        {
+            <div class="pets-list-header__actions">
+                <a asp-action="Create" class="btn-auth-primary">Додати тварину</a>
+            </div>
+        }
+    </div>
+
+    <div class="pets-list-search">
+        <span class="pets-list-search__icon" aria-hidden="true"></span>
+        <input type="text"
+               id="searchInput"
+               class="pets-list-search__input"
+               placeholder="Пошук по імені або породі...">
+    </div>
+
+    <div class="pets-list-card">
+        <div class="pets-list-table-wrap">
+            <table class="table pets-list-table">
+                <thead>
+                    <tr>
+                        <th>Ім'я</th>
+                        <th>Тип і порода</th>
+                        <th class="text-center">Вік</th>
+                        <th>Стать</th>
+                        <th>Розмір</th>
+                        <th>Вакцинація</th>
+                        <th>Стерилізація</th>
+                        <th>Статус</th>
+                        @if (canUsePetActions)
+                        {
+                            <th class="text-end">Дії</th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody id="petsTable">
+                    @foreach (var pet in Model)
+                    {
+                        <tr>
+                            <td data-label="Ім'я">
+                                <span class="pets-list-name name">@pet.PetName</span>
+                            </td>
+                            <td data-label="Тип і порода">
+                                <span class="pets-list-kind">@pet.Type</span>
+                                <span class="pets-list-breed breed">@pet.Breed</span>
+                            </td>
+                            <td data-label="Вік" class="pets-list-age">@pet.Age @pet.AgeText</td>
+                            <td data-label="Стать">@pet.Gender</td>
+                            <td data-label="Розмір">@pet.Size</td>
+                            <td data-label="Вакцинація">
+                                <span class="pets-list-check @(pet.Vaccinated ? "pets-list-check--yes" : "pets-list-check--no")">
+                                    @(pet.Vaccinated ? "Так" : "Ні")
+                                </span>
+                            </td>
+                            <td data-label="Стерилізація">
+                                <span class="pets-list-check @(pet.Sterilized ? "pets-list-check--yes" : "pets-list-check--no")">
+                                    @(pet.Sterilized ? "Так" : "Ні")
+                                </span>
+                            </td>
+                            <td data-label="Статус">
+                                <span class="pets-list-status">@pet.Status</span>
+                            </td>
+                            @if (canUsePetActions)
+                            {
+                                <td data-label="Дії">
+                                    <div class="pets-list-actions">
+                                        @if (User.IsInRole("user"))
+                                        {
+                                            <form asp-controller="Favorites" asp-action="Add" method="post" class="favorite-form pets-list-favorite">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="petId" value="@pet.PetId" />
+                                                <button type="submit" aria-label="Додати в обране">♡</button>
+                                            </form>
+                                        }
+
+                                        @if (canManagePets)
+                                        {
+                                            <div class="dropdown">
+                                                <button class="pets-list-action-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Дії">
+                                                    ...
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end pets-list-dropdown">
+                                                    <li><a asp-action="Details" asp-route-id="@pet.PetId" class="dropdown-item pets-list-dropdown__primary">Переглянути</a></li>
+                                                    <li><a asp-action="Edit" asp-route-id="@pet.PetId" class="dropdown-item">Редагувати</a></li>
+                                                    <li><a asp-action="Delete" asp-route-id="@pet.PetId" class="dropdown-item pets-list-dropdown__danger">Видалити</a></li>
+                                                </ul>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+<script>
+window.onload = function () {
+
+    const input = document.getElementById("searchInput");
+
+    input.oninput = function () {
+
+        const value = input.value.toLowerCase();
+
+        document.querySelectorAll("#petsTable tr").forEach(row => {
+
+            const name = row.querySelector(".name").textContent.toLowerCase();
+            const breed = row.querySelector(".breed").textContent.toLowerCase();
+
+            if (name.includes(value) || breed.includes(value)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+
+        });
+    };
+
+};
+</script>

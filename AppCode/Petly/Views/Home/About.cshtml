@@ -1,0 +1,33 @@
+@model AboutPageViewModel
+
+@{
+    ViewData["Title"] = "Про Нас";
+}
+
+<section class="about-page">
+    <div class="about-hero">
+        <div class="about-hero__content">
+            <div class="about-hero__copy">
+                <span class="about-hero__eyebrow">@Model.Eyebrow</span>
+                <h1 class="about-hero__title">@Model.HeroTitle</h1>
+                <p class="about-hero__text">@Model.HeroText</p>
+                @if (Model.CanEdit)
+                {
+                    <a asp-action="EditAbout" class="btn-need-primary about-edit-link">Редагувати сторінку</a>
+                }
+            </div>
+            <div class="about-hero__image-wrap">
+                <img src="~/images/about.png" asp-append-version="true" alt="Команда Petly" class="about-hero__image">
+            </div>
+        </div>
+    </div>
+
+    <section class="about-card">
+        <h2 class="about-page__title">@Model.ContentTitle</h2>
+
+        <p class="about-page__text">@Model.ContentText</p>
+
+        <h2 class="about-page__subtitle">@Model.ContactsTitle</h2>
+        <p class="about-page__contacts">@Model.Contacts</p>
+    </section>
+</section>

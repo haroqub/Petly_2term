@@ -1,0 +1,90 @@
+@model List<Petly.Models.Pet>
+
+@{
+    ViewData["Title"] = "Мої переглянуті тварини";
+}
+
+<section class="favorites-page">
+    <h1 class="favorites-title">Мої переглянуті тварини</h1>
+
+    @if (!Model.Any())
+    {
+        <p>Ви ще не переглядали тварин 🐾</p>
+    }
+    else
+    {
+        <div class="favorites-grid">
+            @foreach (var pet in Model)
+            {
+                var photoUrl = string.IsNullOrWhiteSpace(pet.PhotoUrl)
+                    ? "/images/pets/no-photo.svg"
+                    : pet.PhotoUrl.StartsWith("http")
+                        ? pet.PhotoUrl
+                        : "/" + pet.PhotoUrl.TrimStart('/');
+
+                <div class="favorite-card">
+
+                    <img src="@photoUrl" class="favorite-card-img" />
+
+                    <div class="favorite-card-body">
+
+                        <a asp-controller="Pets"
+                           asp-action="Details"
+                           asp-route-id="@pet.PetId"
+                           class="favorite-view-link">
+                            Переглянути
+                        </a>
+
+                        <h3>@pet.PetName</h3>
+
+                        <span class="pet-tag">
+                            @pet.Type, @(pet.Age.HasValue ? $"{pet.Age} рік" : "")
+                        </span>
+
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</section>
+<style>
+.favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.favorite-card {
+    background: #f3e6c9;
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 320px;
+}
+
+.favorite-card-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.favorite-card-body {
+    padding: 12px;
+    text-align: center;
+}
+
+.favorite-view-link {
+    display: block;
+    margin-bottom: 8px;
+    text-decoration: none;
+    color: #000;
+}
+
+.pet-tag {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 10px;
+    background: #f5e1a4;
+    border-radius: 12px;
+    font-size: 14px;
+}
+</style>

@@ -1,0 +1,83 @@
+@model List<Petly.Models.AdminUserViewModel>
+@{
+    ViewData["Title"] = "Користувачі";
+}
+
+<div class="mb-3">
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">&larr; Назад</a>
+</div>
+
+<div class="page-header d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Користувачі</h2>
+        <p class="text-muted mb-0">Нові реєстрації автоматично з'являються у списку.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Register" class="btn-auth-secondary">Нова реєстрація</a>
+        <a asp-action="Login" class="btn btn-outline-dark">Сторінка входу</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<div class="table-responsive">
+    <table class="table user-table align-middle">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Ім'я</th>
+                <th>Прізвище / Притулок</th>
+                <th>Email</th>
+                <th>Роль</th>
+                <th>Статус</th>
+                <th>Зареєстрований</th>
+                <th class="text-end">Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in Model)
+            {
+                <tr>
+                    <td>@u.AccountId</td>
+                    <td>@(string.IsNullOrWhiteSpace(u.Name) ? "—" : u.Name)</td>
+                    <td>
+                        @if (u.Role == "shelter_admin")
+                        {
+                            @(u.ShelterName ?? "—")
+                        }
+                        else
+                        {
+                            @(string.IsNullOrWhiteSpace(u.Surname) ? "—" : u.Surname)
+                        }
+                    </td>
+                    <td>@u.Email</td>
+                    <td>@u.Role</td>
+                    <td>@u.Status</td>
+                    <td>@u.RegistrationDate.ToString("yyyy-MM-dd")</td>
+                    <td class="text-end">
+                        <div class="dropdown">
+                            <button class="pets-list-action-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Дії">
+                                ...
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end pets-list-dropdown">
+                                <li>
+                                    <a asp-action="Edit" asp-route-id="@u.AccountId" class="dropdown-item pets-list-dropdown__primary">Редагувати</a>
+                                </li>
+                                <li>
+                                    <form asp-action="Delete" asp-route-id="@u.AccountId" method="post">
+                                        <button type="submit" class="dropdown-item pets-list-dropdown__danger" onclick="return confirm('Видалити користувача?');">
+                                            Видалити
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

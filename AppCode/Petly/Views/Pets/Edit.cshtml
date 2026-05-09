@@ -1,0 +1,108 @@
+@model Petly.Models.Pet
+
+@{
+    ViewData["Title"] = "Редагувати тварину";
+    var photoUrl = string.IsNullOrWhiteSpace(Model.PhotoUrl)
+        ? "/images/pets/no-photo.svg"
+        : Model.PhotoUrl.StartsWith("http", System.StringComparison.OrdinalIgnoreCase)
+            ? Model.PhotoUrl
+            : "/" + Model.PhotoUrl.TrimStart('/');
+}
+
+<h2 class="text-center mb-4">Редагувати тварину</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="w-50 mx-auto">
+    <input type="hidden" asp-for="PetId" />
+
+    <div class="form-group mb-4">
+        <label class="form-label pet-edit-photo-label">Поточне фото тварини</label>
+        <div class="pet-edit-photo-frame">
+            <img src="@photoUrl" alt="@Model.PetName" class="pet-edit-photo" />
+        </div>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="PetName">Ім'я тварини</label>
+        <input asp-for="PetName" class="form-control" />
+        <span asp-validation-for="PetName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Type">Тип тварини</label>
+        <select asp-for="Type" class="form-control">
+            <option value="">Обрати</option>
+            @foreach (var type in new[] { "Собака", "Кіт" })
+            {
+                <option value="@type">@type</option>
+            }
+        </select>
+        <span asp-validation-for="Type" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Breed">Порода</label>
+        <input asp-for="Breed" class="form-control" />
+        <span asp-validation-for="Breed" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Gender">Стать</label>
+        <select asp-for="Gender" class="form-control">
+            <option value="">Обрати</option>
+            @foreach (var gender in new[] { "Хлопчик", "Дівчинка" })
+            {
+                <option value="@gender">@gender</option>
+            }
+        </select>
+        <span asp-validation-for="Gender" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Age">Вік</label>
+        <input asp-for="Age" type="number" class="form-control" min="0" />
+        <span asp-validation-for="Age" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Size">Розмір</label>
+        <select asp-for="Size" class="form-control">
+            <option value="">Обрати</option>
+            @foreach (var size in new[] { "Маленький", "Середній", "Великий" })
+            {
+                <option value="@size">@size</option>
+            }
+        </select>
+        <span asp-validation-for="Size" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-2">
+        <input asp-for="Vaccinated" class="form-check-input" />
+        <label asp-for="Vaccinated" class="form-check-label">Вакцинована</label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="Sterilized" class="form-check-input" />
+        <label asp-for="Sterilized" class="form-check-label">Стерилізована</label>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="PhotoUrl">Посилання або шлях до фото</label>
+        <input asp-for="PhotoUrl" class="form-control" />
+        <span asp-validation-for="PhotoUrl" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-4">
+        <label asp-for="Description">Опис</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn" style="background-color:#f4b000; border:1px solid #f4b000; color:#fff; min-width:150px;">Зберегти зміни</button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Назад</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

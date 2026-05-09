@@ -1,0 +1,45 @@
+@model Petly.Models.VerifyResetCodeViewModel
+@{
+    ViewData["Title"] = "Підтвердження коду";
+}
+
+<div class="auth-shell">
+    <div class="auth-logo-row">
+        <span class="logo-text">Petly</span>
+    </div>
+
+    <div class="auth-card">
+        <h2 class="auth-title">Підтвердження коду</h2>
+        <p class="auth-description">
+            Ми надіслали код підтвердження на вашу електронну пошту. Введіть його нижче.
+        </p>
+        <p class="auth-helper">
+            Код дійсний протягом @Model.CodeLifetimeMinutes хвилин.
+        </p>
+
+        <form asp-action="VerifyResetCode" method="post" class="auth-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+            <input asp-for="Email" type="hidden" />
+            <input asp-for="CodeLifetimeMinutes" type="hidden" />
+            <div class="mb-3 text-start">
+                <label asp-for="Code" class="form-label fw-semibold">Код підтвердження:</label>
+                <input asp-for="Code" class="form-control auth-code-input" inputmode="numeric" autocomplete="one-time-code" />
+                <span asp-validation-for="Code" class="text-danger small"></span>
+            </div>
+            <button type="submit" class="btn-auth-primary">Підтвердити код</button>
+        </form>
+
+        <div class="auth-secondary-actions">
+            <form asp-action="ResendResetCode" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="email" value="@Model.Email" />
+                <button type="submit" class="auth-link-button auth-link-button--button">Надіслати код повторно</button>
+            </form>
+            <a class="auth-link-button" asp-action="ForgotPassword">Назад</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

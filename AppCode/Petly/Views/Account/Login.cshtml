@@ -1,0 +1,44 @@
+@model Petly.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Вхід";
+}
+
+<div class="auth-shell">
+    <div class="auth-logo-row">
+        <span class="logo-text">Petly</span>
+    </div>
+
+    <div class="auth-card">
+        <h2 class="auth-title">Раді знову бачити!</h2>
+        <p class="auth-description">Увійдіть, щоб переглядати улюбленців, керувати заявками та підтримувати притулки.</p>
+        <form asp-action="Login" method="post" class="auth-form">
+            <div asp-validation-summary="ModelOnly" class="auth-summary"></div>
+            <div class="text-start">
+                <label asp-for="Email" class="form-label fw-semibold">Email</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="field-error"></span>
+            </div>
+            <div class="text-start">
+                <label asp-for="Password" class="form-label fw-semibold">Пароль</label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="field-error"></span>
+            </div>
+            <div class="auth-inline-actions">
+                <div class="form-check auth-form-check text-start mb-0">
+                    <input asp-for="RememberMe" class="form-check-input" />
+                    <label asp-for="RememberMe" class="form-check-label">Запам'ятати мене</label>
+                </div>
+                <a class="auth-link-button" asp-action="ForgotPassword">Забули пароль?</a>
+            </div>
+            <button type="submit" class="btn-auth-primary">Увійти</button>
+        </form>
+        <div class="auth-switch">
+            <span>Немає акаунту?</span>
+            <a class="btn-auth-secondary" asp-action="Register">Зареєструватися</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

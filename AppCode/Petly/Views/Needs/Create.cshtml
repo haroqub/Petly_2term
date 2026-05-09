@@ -1,0 +1,43 @@
+@model Petly.Models.ShelterNeedFormViewModel
+
+@{
+    ViewData["Title"] = "Додати потребу";
+}
+
+<section class="need-form-shell">
+    <div class="need-form-panel">
+        <p class="need-form-panel__eyebrow">Create Need</p>
+        <h1 class="need-form-panel__title">Додай нову потребу притулку</h1>
+        <p class="need-form-panel__text">
+            Сформулюй запит просто і конкретно: що саме потрібно і як люди можуть допомогти.
+        </p>
+    </div>
+
+    <div class="need-form-card">
+        <form asp-action="Create" method="post" class="need-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+            <input asp-for="ShelterId" type="hidden" />
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control need-textarea" rows="6" placeholder="Наприклад: потрібен сухий корм для цуценят, пелюшки та миски"></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="PaymentDetails" class="form-label"></label>
+                <input asp-for="PaymentDetails" class="form-control need-input" placeholder="Наприклад: можна привезти в притулок або зробити переказ" />
+                <span asp-validation-for="PaymentDetails" class="text-danger small"></span>
+            </div>
+
+            <div class="need-form__actions">
+                <button type="submit" class="btn-need-primary">Зберегти</button>
+                <a asp-action="Index" class="btn-need-secondary">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

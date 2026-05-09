@@ -1,0 +1,230 @@
+.flash-stack {
+    display: grid;
+    gap: 0.85rem;
+    margin-bottom: 1.2rem;
+}
+
+.flash-message {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid rgba(255, 174, 0, 0.1);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.flash-message--success {
+    border-left: 5px solid #6bbf59;
+}
+
+.flash-message--error {
+    border-left: 5px solid #e35d4f;
+}
+
+.flash-message__text {
+    margin: 0;
+    font-weight: 700;
+}
+
+.flash-message__close {
+    border: none;
+    background: transparent;
+    color: var(--petly-text-muted);
+    padding: 0;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.loader-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(253, 251, 245, 0.86);
+    z-index: 2000;
+    transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+.loader-overlay.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-card {
+    display: grid;
+    justify-items: center;
+    gap: 0.85rem;
+    padding: 1.5rem 2rem;
+    border-radius: var(--petly-radius);
+    background: #ffffff;
+    box-shadow: var(--petly-shadow-md);
+}
+
+.loader-spinner {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 5px solid rgba(244, 176, 0, 0.2);
+    border-top-color: var(--petly-accent-deep);
+    animation: petly-spin 0.8s linear infinite;
+}
+
+@keyframes petly-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.user-table th {
+    background: #fff3d1;
+    border-bottom: 2px solid rgba(255, 174, 0, 0.16);
+}
+
+.user-table td,
+.user-table th {
+    border-color: #d0d0d0;
+}
+
+.data-table {
+    margin: 0;
+}
+
+.data-table thead th {
+    background: #fff3d1;
+    color: var(--petly-text);
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid rgba(255, 174, 0, 0.16);
+    padding: 1rem 0.85rem;
+    white-space: nowrap;
+}
+
+.data-table tbody td {
+    padding: 1rem 0.85rem;
+    border-color: rgba(255, 174, 0, 0.1);
+    vertical-align: middle;
+}
+
+.data-table tbody tr {
+    transition: background-color var(--petly-transition), transform var(--petly-transition);
+}
+
+.data-table.table-hover tbody tr:hover {
+    background: rgba(255, 216, 77, 0.08);
+}
+
+.pet-table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    align-items: center;
+}
+
+.pet-table-actions form {
+    margin: 0;
+}
+
+.btn-pets-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    min-width: 132px;
+    padding: 0.65rem 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 174, 0, 0.16);
+    background: #fff9eb;
+    color: var(--petly-text);
+    font-weight: 800;
+    text-decoration: none;
+    transition: background-color var(--petly-transition), color var(--petly-transition), transform var(--petly-transition), box-shadow var(--petly-transition);
+    box-shadow: 0 8px 18px rgba(150, 102, 21, 0.08);
+}
+
+.btn-pets-action:hover {
+    background: #ffb347;
+    color: #000;
+    transform: translateY(-1px);
+}
+
+.btn-pets-action--danger {
+    background: #fff4eb;
+    color: #8c4e15;
+}
+
+.btn-pets-action--danger:hover {
+    background: #ffb347;
+    color: #000;
+}
+
+.btn-pets-action--icon {
+    min-width: 58px;
+    padding-inline: 0.85rem;
+}
+
+.entity-link {
+    color: #d08a12;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.entity-link:hover {
+    color: #b56f00;
+    text-decoration: underline;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    line-height: 1;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.status-pill--pending {
+    background: #fff5d6;
+    border-color: #ffe2a2;
+    color: #9b6500;
+}
+
+.status-pill--approved {
+    background: #fff0b8;
+    border-color: #ffdc73;
+    color: #855700;
+}
+
+.status-pill--rejected {
+    background: #fff7df;
+    border-color: #f0d59b;
+    color: #846328;
+}
+
+.status-pill--auto-rejected {
+    background: #faf4e8;
+    border-color: #e8dcc5;
+    color: #7a6750;
+}
+
+.status-pill--home {
+    background: #fff0b8;
+    border-color: #ffd666;
+    color: #855700;
+}
+
+.status-pill--available {
+    background: #fff6dc;
+    border-color: #ffe39a;
+    color: #986400;
+}
+
