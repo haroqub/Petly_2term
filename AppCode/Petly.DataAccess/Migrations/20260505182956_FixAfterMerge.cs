@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -12,7 +12,7 @@ namespace Petly.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
+            /*migrationBuilder.CreateTable(
                 name: "SuccessStories",
                 columns: table => new
                 {
@@ -80,17 +80,17 @@ namespace Petly.DataAccess.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ViewedPets_UserId",
                 table: "ViewedPets",
-                column: "UserId");
+                column: "UserId");*/
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
+           /* migrationBuilder.DropTable(
                 name: "SuccessStories");
 
             migrationBuilder.DropTable(
-                name: "ViewedPets");
+                name: "ViewedPets");*/
         }
     }
 }
